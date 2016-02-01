@@ -10,6 +10,7 @@ import com.mwdiamond.fansi.Ansi.Style;
 /**
  * Direct implementation of the ANSI codes, as listed on
  * https://en.wikipedia.org/wiki/ANSI_escape_code
+ * http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/bash-prompt-escape-sequences.html
  * 
  * Subclasses can implement alternative codes or disable
  * methods they don't support via UnsupportedOperationException.
@@ -18,13 +19,17 @@ import com.mwdiamond.fansi.Ansi.Style;
  * Subclasses should similarly avoid introducing any state.
  */
 class Codes {
+    // Escapes
     private static final String ESC_REAL = "\u001B";
     private static final String BELL_REAL = "\u0007";
     private static final String ESC_RAW = "\\e";
     private static final String BELL_RAW = "\\a";
-    private static String CSI_CHAR = "[";
-    private static String TITLE_ESCAPE = "]0;";
-    
+    private static final String TITLE_ESCAPE = "]0;";
+    private static final String BEGIN_NON_PRINTING = "\\[";
+    private static final String END_NON_PRINTING = "\\]";
+
+    // CSI
+    private static final String CSI_CHAR = "[";
     private static final String CUU = "A";
     private static final String CUD = "B";
     private static final String CUF = "C";
@@ -60,8 +65,13 @@ class Codes {
         this.csi = esc + CSI_CHAR;
     }
     
+    // http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/xterm-title-bar-manipulations.html
     public String title(String text) {
         return esc + TITLE_ESCAPE + text + bell;
+    }
+    
+    public String promptQuote(String text) {
+        return BEGIN_NON_PRINTING + text + END_NON_PRINTING;
     }
     
     public String moveCursor(int lines, int columns) {
@@ -78,20 +88,6 @@ class Codes {
         }
         return buffer.toString();
     }
-    
-    public String positionCursor(int row, int column) {
-        checkArgument(row > 0, "Must specify a positive row, was %s", row);
-        checkArgument(column > 0, "Must specify a positive column, was %s", column);
-        return csi + row + ";" + column + CUP;
-    }
-    
-    public String saveCursor() {
-        return csi + SCP;
-    }
-    
-    public String restoreCursor() {
-        return csi + RCP;
-    }
 
     public String downLine(int n) {
         checkArgument(n > 0, "Must specify a positive number of lines, was %s", n);
@@ -101,6 +97,12 @@ class Codes {
     public String upLine(int n) {
         checkArgument(n > 0, "Must specify a positive number of lines, was %s", n);
         return csi + n + CPL;
+    }
+    
+    public String positionCursor(int row, int column) {
+        checkArgument(row > 0, "Must specify a positive row, was %s", row);
+        checkArgument(column > 0, "Must specify a positive column, was %s", column);
+        return csi + row + ";" + column + CUP;
     }
     
     public String clearDisplay() {
@@ -125,6 +127,16 @@ class Codes {
     
     public String clearLineBackward() {
         return csi + 1 + EL;
+    }
+    
+    public String scrollUp(int n) {
+        checkArgument(n > 0, "Must specify a positive number of lines, was %s", n);
+        return csi + n + SU;
+    }
+    
+    public String scrollDown(int n) {
+        checkArgument(n > 0, "Must specify a positive number of lines, was %s", n);
+        return csi + n + SD;
     }
     
     public String color(Color color, Color background, Font font, Style ... styles) {
@@ -159,6 +171,26 @@ class Codes {
     
     public String clear() {
         return csi + SGR;
+    }
+    
+    public String getCursor() {
+        return csi + DSR;
+    }
+    
+    public String saveCursor() {
+        return csi + SCP;
+    }
+    
+    public String restoreCursor() {
+        return csi + RCP;
+    }
+    
+    public String hideCursor() {
+        return csi + DECTCEM_HIDE;
+    }
+    
+    public String showCursor() {
+        return csi + DECTCEM_SHOW;
     }
     
     // TODO replace with Preconditions.checkArgument if Guava gets included
