@@ -2,7 +2,6 @@ package com.mwdiamond.fansi;
 
 
 import java.io.PrintStream;
-
 public class Ansi {
     // Might make this dynamic in the future, based on the startup environment
     private static final Codes DEFAULT_CODES = Codes.REAL;
@@ -49,15 +48,28 @@ public class Ansi {
         }
     }
     
+    public static enum Font {
+        F1(11), F2(12), F3(13), F4(14), F5(15), F6(16), F7(17), F8(18), F9(19), FRAKTUR(20), DEFAULT(10);
+        
+        private final int code;
+     
+        private Font(int code) {
+            this.code = code;
+        }
+     
+        public int code() {
+            return code;
+        }   
+    }
+    
     public static enum Style {
         BOLD(1), DIM(2), ITALIC(3), UNDERLINE(4), BLINK(5), BLINK_RAPID(6), REVERSE(7), CONCEAL(8), STRIKETHROUGH(9),
-        FONT_DEFAULT(10), FONT_1(11), FONT_2(12), FONT_3(13), FONT_4(14), FONT_5(15), FONT_6(16), FONT_7(17), FONT_8(18), FONT_9(19), FONT_FRAKTUR(20),
         FRAME(51), ENCIRCLE(52), OVERLINE(53);
         
         private final int code;
         
         private Style(int code) {
-            this.code = code; 
+            this.code = code;
         }
         
         public int code() {
@@ -83,25 +95,37 @@ public class Ansi {
     }
     
     public Ansi color(Color color, Style ... styles) {
-        preBuffer.append(codes.color(color, Color.DEFAULT, styles));
+        preBuffer.append(codes.color(color, Color.DEFAULT, Font.DEFAULT, styles));
         postBuffer.append(codes.clear());
         return this;
     }
     
     public Ansi color(Color color, Color background, Style ... styles) {
-        preBuffer.append(codes.color(color, background, styles));
+        preBuffer.append(codes.color(color, background, Font.DEFAULT, styles));
         postBuffer.append(codes.clear());
         return this;
     }
     
+    public Ansi color(Color color, Color background, Font font, Style ... styles) {
+        preBuffer.append(codes.color(color, background, font, styles));
+        postBuffer.append(codes.clearFont()).append(codes.clear());
+        return this;
+    }
+    
     public Ansi background(Color background, Style ... styles) {
-       preBuffer.append(codes.color(Color.DEFAULT, background, styles));
+       preBuffer.append(codes.color(Color.DEFAULT, background, Font.DEFAULT, styles));
        postBuffer.append(codes.clear());
        return this;
     }
     
+    public Ansi font(Font font, Style ... styles) {
+        preBuffer.append(codes.color(Color.DEFAULT, Color.DEFAULT, font, styles));
+        postBuffer.append(codes.clearFont()).append(codes.clear());
+        return this;
+    }
+    
     public Ansi style(Style ... styles) {
-        preBuffer.append(codes.color(Color.DEFAULT, Color.DEFAULT, styles));
+        preBuffer.append(codes.color(Color.DEFAULT, Color.DEFAULT, Font.DEFAULT, styles));
         postBuffer.append(codes.clear());
         return this;
     }

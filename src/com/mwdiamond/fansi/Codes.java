@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mwdiamond.fansi.Ansi.Color;
+import com.mwdiamond.fansi.Ansi.Font;
 import com.mwdiamond.fansi.Ansi.Style;
 
 /**
@@ -126,10 +127,13 @@ class Codes {
         return csi + 1 + EL;
     }
     
-    public String color(Color color, Color background, Style ... styles) {
+    public String color(Color color, Color background, Font font, Style ... styles) {
         List<String> parts = new ArrayList<>();
         for (Style s : styles) {
             parts.add(String.valueOf(s.code()));
+        }
+        if (font != Font.DEFAULT) {
+            parts.add(String.valueOf(font.code()));
         }
         if (color != Color.DEFAULT) {
             parts.add(String.valueOf(color.color()));
@@ -147,6 +151,10 @@ class Codes {
             output.append(part).append(SEPARATOR);
         }
         return output.append(parts.get(parts.size()-1)).append(SGR).toString();
+    }
+    
+    public String clearFont() {
+        return csi + Font.DEFAULT.code() + SGR;
     }
     
     public String clear() {
