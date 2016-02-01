@@ -2,13 +2,23 @@ package com.mwdiamond.fansi;
 
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
 
-public class Ansi {    
+public class Ansi {
+    // Might make this dynamic in the future, based on the startup environment
+    private static final Codes DEFAULT_CODES = Codes.REAL;
+    
     public static Ansi ansi() {
-        return new Ansi();
+        return new Ansi(DEFAULT_CODES);
     }
+    
+    public static Ansi realAnsi() {
+        return new Ansi(Codes.REAL);
+    }
+    
+    public static Ansi rawAnsi() {
+        return new Ansi(Codes.RAW);
+    }
+    
     
     public static enum Color {
         BLACK(30),    DARK_GREY(90),
@@ -30,11 +40,11 @@ public class Ansi {
             this.code = code;
         }
         
-        private int color() {
+        int color() {
             return code;
         }
         
-        private int background() {
+        int background() {
             return color() + BACKGROUND;
         }
     }
@@ -55,75 +65,84 @@ public class Ansi {
         }
     }
     
+    private final Codes codes;
     private final StringBuffer preBuffer;
     private final StringBuffer postBuffer;
     
-    private Ansi() {
+    private Ansi(Codes codes) {
+        this.codes = codes;
         preBuffer = new StringBuffer();
         postBuffer = new StringBuffer();
     }
     
+    public void title(String title) {
+        if(preBuffer.length() > 0 || postBuffer.length() > 0) {
+            throw new IllegalStateException("Unnecessary chaining; cannot set additional formatting on the window title.");
+        }
+        out(codes.title(title));
+    }
+    
     public Ansi color(Color color, Style ... styles) {
-        preBuffer.append(Codes.color(color, Color.DEFAULT, styles));
-        postBuffer.append(Codes.clear());
+        preBuffer.append(codes.color(color, Color.DEFAULT, styles));
+        postBuffer.append(codes.clear());
         return this;
     }
     
     public Ansi color(Color color, Color background, Style ... styles) {
-        preBuffer.append(Codes.color(color, background, styles));
-        postBuffer.append(Codes.clear());
+        preBuffer.append(codes.color(color, background, styles));
+        postBuffer.append(codes.clear());
         return this;
     }
     
     public Ansi background(Color background, Style ... styles) {
-       preBuffer.append(Codes.color(Color.DEFAULT, background, styles));
-       postBuffer.append(Codes.clear());
+       preBuffer.append(codes.color(Color.DEFAULT, background, styles));
+       postBuffer.append(codes.clear());
        return this;
     }
     
     public Ansi style(Style ... styles) {
-        preBuffer.append(Codes.color(Color.DEFAULT, Color.DEFAULT, styles));
-        postBuffer.append(Codes.clear());
+        preBuffer.append(codes.color(Color.DEFAULT, Color.DEFAULT, styles));
+        postBuffer.append(codes.clear());
         return this;
     }
     
     public Ansi moveCursor(int lines) {
-        preBuffer.append(Codes.saveCursor());
+        preBuffer.append(codes.saveCursor());
         if (lines < 0) {
-            preBuffer.append(Codes.upLine(0 - lines));
+            preBuffer.append(codes.upLine(0 - lines));
         } else {
-            preBuffer.append(Codes.downLine(lines)); // will raise an exception if 0
+            preBuffer.append(codes.downLine(lines)); // will raise an exception if 0
         }
         return this;
     }
     
     public Ansi moveCursor(int lines, int columns) {
-        preBuffer.append(Codes.saveCursor())
-            .append(Codes.moveCursor(lines, columns));
+        preBuffer.append(codes.saveCursor())
+            .append(codes.moveCursor(lines, columns));
         return this;
     }
     
     public Ansi fixed(int row, int column) {
-        preBuffer.append(Codes.saveCursor())
-            .append(Codes.positionCursor(row, column));
-        postBuffer.append(Codes.restoreCursor());
+        preBuffer.append(codes.saveCursor())
+            .append(codes.positionCursor(row, column));
+        postBuffer.insert(0, codes.restoreCursor());
         return this;
     }
     
     public Ansi restoreCursor() {
-        preBuffer.append(Codes.restoreCursor());
+        preBuffer.append(codes.restoreCursor());
         return this;
     }
     
     public Ansi overwriteThisLine() {
-        preBuffer.append(Codes.clearLine());
+        preBuffer.append(codes.clearLine());
         return this;
     }
     
     public Ansi overwriteLastLine() {
-        preBuffer.append(Codes.clearLine())
-            .append(Codes.upLine(1))
-            .append(Codes.clearLine());
+        preBuffer.append(codes.clearLine())
+            .append(codes.upLine(1))
+            .append(codes.clearLine());
         return this;
     }
     
@@ -157,134 +176,4 @@ public class Ansi {
         return writeToPrintStream(System.err, true, text, args);
     }
     
-    /**
-     * Direct implementation of the ANSI codes, as listed on
-     * https://en.wikipedia.org/wiki/ANSI_escape_code
-     */
-    private static class Codes {
-        private static String ESC_REAL = "\u001B";
-        private static String ESC_RAW = "\\e";
-        private static String CSI_REAL = ESC_REAL + "[";
-        private static String CSI_RAW = ESC_RAW + "[";
-        private static String CSI = CSI_REAL;
-        
-        private static String CUU = "A";
-        private static String CUD = "B";
-        private static String CUF = "C";
-        private static String CUB = "D";
-        private static String CNL = "E";
-        private static String CPL = "F";
-        @SuppressWarnings("unused") private static String CHA = "G";
-        private static String CUP = "H";
-        private static String ED = "J";
-        private static String EL = "K";
-        private static String SU = "S";
-        private static String SD = "T";
-        @SuppressWarnings("unused") private static String HVP = "f";
-        private static String SGR = "m";
-        private static String DSR = "6n";
-        private static String SCP = "s";
-        private static String RCP = "u";
-        private static String DECTCEM_HIDE = "?25l";
-        private static String DECTCEM_SHOW = "?25h";
-        
-        private static String SEPARATOR = ";";
-        
-        public static String moveCursor(int lines, int columns) {
-            StringBuilder buffer = new StringBuilder();
-            if(lines > 0) {
-                buffer.append(CSI).append(lines).append(CUD);
-            } else if (lines < 0) {
-                buffer.append(CSI).append(0 - lines).append(CUU);
-            }
-            if (columns > 0) {
-                buffer.append(CSI).append(columns).append(CUF);
-            } else if (columns < 0) {
-                buffer.append(CSI).append(0 - columns).append(CUB);
-            }
-            return buffer.toString();
-        }
-        
-        public static String positionCursor(int row, int column) {
-            checkArgument(row > 0, "Must specify a positive row, was %s", row);
-            checkArgument(column > 0, "Must specify a positive column, was %s", column);
-            return CSI + row + ";" + column + CUP;
-        }
-        
-        public static String saveCursor() {
-            return CSI + SCP;
-        }
-        
-        public static String restoreCursor() {
-            return CSI + RCP;
-        }
-
-        public static String downLine(int n) {
-            checkArgument(n > 0, "Must specify a positive number of lines, was %s", n);
-            return CSI + n + CNL;
-        }
-
-        public static String upLine(int n) {
-            checkArgument(n > 0, "Must specify a positive number of lines, was %s", n);
-            return CSI + n + CPL;
-        }
-        
-        public static String clearDisplay() {
-            return CSI + 2 + ED;
-        }
-        
-        public static String clearDisplayForward() {
-            return CSI + 0 + ED;
-        }
-        
-        public static String clearDisplayBackward() {
-            return CSI + 1 + ED;
-        }
-        
-        public static String clearLine() {
-            return CSI + 2 + EL;
-        }
-        
-        public static String clearLineForward() {
-            return CSI + 0 + EL;
-        }
-        
-        public static String clearLineBackward() {
-            return CSI + 1 + EL;
-        }
-        
-        public static String color(Color color, Color background, Style ... styles) {
-            List<String> parts = new ArrayList<>();
-            for (Style s : styles) {
-                parts.add(String.valueOf(s.code()));
-            }
-            if (color != Color.DEFAULT) {
-                parts.add(String.valueOf(color.color()));
-            }
-            if (background != Color.DEFAULT) {
-                parts.add(String.valueOf(background.background()));
-            }
-            if(parts.isEmpty()) {
-                return "";
-            }
-            // TODO replace with a Joiner if we include Guava as a dependency
-            //return SEPARATOR_JOINER.appendTo(new StringBuilder(CSI), parts).append(SGR).toString();
-            StringBuilder output = new StringBuilder(CSI);
-            for (String part : parts.subList(0, parts.size()-1)) {
-                output.append(part).append(SEPARATOR);
-            }
-            return output.append(parts.get(parts.size()-1)).append(SGR).toString();
-        }
-        
-        public static String clear() {
-            return CSI + SGR;
-        }
-    }
-    
-    // TODO replace with Preconditions.checkArgument if Guava gets included
-    private static void checkArgument(boolean test, String message, Object ... args) {
-        if (!test) {
-            throw new IllegalArgumentException(String.format(message, args));
-        }
-    }
 }

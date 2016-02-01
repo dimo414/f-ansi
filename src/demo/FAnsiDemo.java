@@ -7,6 +7,8 @@ import com.mwdiamond.fansi.Ansi.Style;
 
 public class FAnsiDemo {
     public static void main(String[] args) throws Exception {
+        ansi().title("Look, I set the title!");
+        
         ansi().color(Color.RED).out("Hello").out(" - ").color(Color.LIGHT_GREEN).outln("%s", "World");
         ansi().color(Color.MAGENTA, Color.YELLOW, Style.BOLD).outln("Uuugly...");
         ansi().out("[ ").color(Color.GREEN).out("OK").outln(" ] %s", "A Long Message");
@@ -22,7 +24,11 @@ public class FAnsiDemo {
         for (Color c : Color.values()) {
             ansi().color(c).out("%s", c).out(" ").background(c).out("%s", c).out(" ");
         }
-        ansi().outln("\n");
+        ansi().outln("");
+        
+        ansi().color(Color.RED).fixed(30, 80).out("Look it's a message in space!");
+        
+        ansi().color(Color.GREEN, Style.BOLD, Style.ITALIC, Style.UNDERLINE).outln("There's a lot going on here...");
         
         ansi().color(Color.RED).fixed(30, 80).out("Look it's a message in space!");
     }
