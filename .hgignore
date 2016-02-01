@@ -1,0 +1,4 @@
+glob:bin/*
+glob:.project
+glob:.classpath
+glob:.settings/*
