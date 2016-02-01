@@ -15,18 +15,24 @@ public class FAnsiDemo {
         ansi().outln("Waiting...").overwriteLastLine().outln(slowCommand());
         slowCommand();
         ansi().overwriteLastLine().background(Color.RED).outln("Nevermind...");
-        System.out.println();
-        for (Style s : Style.values()) {
-            ansi().style(s).out("%s", s).out(" ");
-        }
-        ansi().outln("");
         
+        ansi().outln();
         for (Color c : Color.values()) {
             ansi().color(c).out("%s", c).out(" ").background(c).out("%s", c).out(" ");
         }
-        ansi().outln("");
-        
-        ansi().color(Color.RED).fixed(30, 80).out("Look it's a message in space!");
+        ansi().outln();
+
+        ansi().outln();
+        for (Style s : Style.values()) {
+            ansi().style(s).out("%s", s).out(" ");
+        }
+        ansi().outln();
+
+        ansi().outln();
+        for (Font f : Font.values()) {
+            ansi().font(f).out("%s", f).out(" ");
+        }
+        ansi().outln().outln();
         
         ansi().color(Color.GREEN, Style.BOLD, Style.ITALIC, Style.UNDERLINE).outln("There's a lot going on here...");
         

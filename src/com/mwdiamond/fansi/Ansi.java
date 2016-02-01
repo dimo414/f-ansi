@@ -192,6 +192,10 @@ public class Ansi {
         return writeToPrintStream(System.out, true, text, args);
     }
     
+    public Ansi outln() {
+        return writeToPrintStream(System.out, true, "");
+    }
+    
     public Ansi err(String text, Object ... args) {
         return writeToPrintStream(System.err, false, text, args);
     }
@@ -200,4 +204,7 @@ public class Ansi {
         return writeToPrintStream(System.err, true, text, args);
     }
     
+    public Ansi errln() {
+        return writeToPrintStream(System.err, true, "");
+    }
 }
