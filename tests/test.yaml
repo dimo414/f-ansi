@@ -1,0 +1,5 @@
+name: Code Sample Unit Tests
+tests:
+  - name: Unit Tests
+    packages:
+      - name: com.mwdiamond.*
