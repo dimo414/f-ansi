@@ -4,3 +4,4 @@ glob:.classpath
 glob:.settings/*
 glob:tests-bin/*
 glob:test-output/*
+glob:dist/*

@@ -8,7 +8,8 @@
     <property name="core.bin" value="bin/"/>
     <property name="test.src" value="tests/"/>
     <property name="test.bin" value="tests-bin/"/>
-    
+    <property name="dist" value="dist/"/>
+
     <!-- Classpaths -->
     <path id="core.classpath">
         <pathelement location="${core.bin}"/>
@@ -21,7 +22,7 @@
         <pathelement location="lib/runtime/jcommander-1.48.jar"/>
         <pathelement location="lib/runtime/snakeyaml-1.14.jar"/>
     </path>
-    
+
     <!-- Setup -->
     <target name="init" description="Create build dirs">
         <mkdir dir="${core.bin}"/>
@@ -44,7 +45,7 @@
         <delete dir="${test.bin}"/>
         <delete dir="test-output"/>
     </target>
-    
+
     <!-- Compile -->
     <target name="build" depends="init" description="Compile core classes">
         <javac deprecation="true" optimize="true" debug="true" debuglevel="${debuglevel}" destdir="${core.bin}" source="${source}" target="${target}" includeantruntime="false">
@@ -59,7 +60,7 @@
             <classpath refid="test.classpath"/>
         </javac>
     </target>
-    
+
     <!-- Tests -->
     <target name="test" depends="build-test" description="Unit tests">
         <java classname="org.testng.TestNG" failonerror="true" fork="yes">
@@ -68,5 +69,12 @@
             <classpath refid="test.classpath"/>
             <classpath refid="runtime.classpath"/>
         </java>
+    </target>
+
+    <!-- Jar -->
+    <target name="jar">
+        <jar destfile="${dist}/f-ansi.jar">
+            <fileset dir="${core.bin}"/>
+        </jar>
     </target>
 </project>
