@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project name="F-ANSI" basedir="." default="test">
+    <property environment="env"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.8"/>
+    <property name="source" value="1.8"/>
+    <property name="core.src" value="src/"/>
+    <property name="core.bin" value="bin/"/>
+    <property name="test.src" value="tests/"/>
+    <property name="test.bin" value="tests-bin/"/>
+    
+    <!-- Classpaths -->
+    <path id="core.classpath">
+        <pathelement location="${core.bin}"/>
+    </path>
+    <path id="test.classpath">
+        <pathelement location="${test.bin}"/>
+        <pathelement location="lib/testng-6.9.4.jar"/>
+    </path>
+    <path id="runtime.classpath">
+        <pathelement location="lib/runtime/jcommander-1.48.jar"/>
+        <pathelement location="lib/runtime/snakeyaml-1.14.jar"/>
+    </path>
+    
+    <!-- Setup -->
+    <target name="init" description="Create build dirs">
+        <mkdir dir="${core.bin}"/>
+        <mkdir dir="${test.bin}"/>
+        <copy includeemptydirs="false" todir="${core.bin}">
+            <fileset dir="${core.src}">
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+        <copy includeemptydirs="false" todir="${test.bin}">
+            <fileset dir="${test.src}">
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <!-- Cleanup -->
+    <target name="clean" description="Remove build dirs">
+        <delete dir="${core.bin}"/>
+        <delete dir="${test.bin}"/>
+        <delete dir="test-output"/>
+    </target>
+    
+    <!-- Compile -->
+    <target name="build" depends="init" description="Compile core classes">
+        <javac deprecation="true" optimize="true" debug="true" debuglevel="${debuglevel}" destdir="${core.bin}" source="${source}" target="${target}" includeantruntime="false">
+            <src path="${core.src}"/>
+            <classpath refid="core.classpath"/>
+        </javac>
+    </target>
+    <target name="build-test" depends="build" description="Compile test classes">
+        <javac deprecation="true" optimize="true" debug="true" debuglevel="${debuglevel}" destdir="${test.bin}" source="${source}" target="${target}" includeantruntime="false">
+            <src path="${test.src}"/>
+            <classpath refid="core.classpath"/>
+            <classpath refid="test.classpath"/>
+        </javac>
+    </target>
+    
+    <!-- Tests -->
+    <target name="test" depends="build-test" description="Unit tests">
+        <java classname="org.testng.TestNG" failonerror="true" fork="yes">
+            <arg value="tests/test.yaml"/>
+            <classpath refid="core.classpath"/>
+            <classpath refid="test.classpath"/>
+            <classpath refid="runtime.classpath"/>
+        </java>
+    </target>
+</project>
