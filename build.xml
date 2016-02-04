@@ -13,10 +13,12 @@
     <!-- Classpaths -->
     <path id="core.classpath">
         <pathelement location="${core.bin}"/>
+        <pathelement location="lib/guava-18.0.jar"/>
     </path>
     <path id="test.classpath">
         <pathelement location="${test.bin}"/>
         <pathelement location="lib/testng-6.9.4.jar"/>
+        <pathelement location="lib/truth-0.28.jar"/>
     </path>
     <path id="runtime.classpath">
         <pathelement location="lib/runtime/jcommander-1.48.jar"/>
