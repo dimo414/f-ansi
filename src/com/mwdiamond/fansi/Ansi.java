@@ -108,6 +108,12 @@ public class Ansi {
         return this;
     }
 
+    public Ansi color(Color color, Font font, Style ... styles) {
+        preBuffer.append(codes.color(color, Color.DEFAULT, font, styles));
+        postBuffer.append(codes.clear());
+        return this;
+    }
+
     public Ansi color(Color color, Color background, Style ... styles) {
         preBuffer.append(codes.color(color, background, Font.DEFAULT, styles));
         postBuffer.append(codes.clear());
