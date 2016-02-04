@@ -1,8 +1,11 @@
 package com.mwdiamond.fansi;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.base.Joiner;
 import com.mwdiamond.fansi.Ansi.Color;
 import com.mwdiamond.fansi.Ansi.Font;
 import com.mwdiamond.fansi.Ansi.Style;
@@ -49,31 +52,32 @@ class Codes {
     private static final String RCP = "u";
     private static final String DECTCEM_HIDE = "?25l";
     private static final String DECTCEM_SHOW = "?25h";
-    
+
     private static String SEPARATOR = ";";
+    private static Joiner SEPARATOR_JOINER = Joiner.on(SEPARATOR);
 
     public static final Codes REAL = new Codes(ESC_REAL, BELL_REAL);
     public static final Codes RAW = new Codes(ESC_RAW, BELL_RAW);
-    
+
     private final String esc;
     private final String bell;
     private final String csi;
-        
+
     private Codes(String esc, String bell) {
         this.esc = esc;
         this.bell = bell;
         this.csi = esc + CSI_CHAR;
     }
-    
+
     // http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/xterm-title-bar-manipulations.html
     public String title(String text) {
         return esc + TITLE_ESCAPE + text + bell;
     }
-    
+
     public String promptQuote(String text) {
         return BEGIN_NON_PRINTING + text + END_NON_PRINTING;
     }
-    
+
     public String moveCursor(int lines, int columns) {
         StringBuilder buffer = new StringBuilder();
         if(lines > 0) {
@@ -98,47 +102,47 @@ class Codes {
         checkArgument(n > 0, "Must specify a positive number of lines, was %s", n);
         return csi + n + CPL;
     }
-    
+
     public String positionCursor(int row, int column) {
         checkArgument(row > 0, "Must specify a positive row, was %s", row);
         checkArgument(column > 0, "Must specify a positive column, was %s", column);
         return csi + row + ";" + column + CUP;
     }
-    
+
     public String clearDisplay() {
         return csi + 2 + ED;
     }
-    
+
     public String clearDisplayForward() {
         return csi + 0 + ED;
     }
-    
+
     public String clearDisplayBackward() {
         return csi + 1 + ED;
     }
-    
+
     public String clearLine() {
         return csi + 2 + EL;
     }
-    
+
     public String clearLineForward() {
         return csi + 0 + EL;
     }
-    
+
     public String clearLineBackward() {
         return csi + 1 + EL;
     }
-    
+
     public String scrollUp(int n) {
         checkArgument(n > 0, "Must specify a positive number of lines, was %s", n);
         return csi + n + SU;
     }
-    
+
     public String scrollDown(int n) {
         checkArgument(n > 0, "Must specify a positive number of lines, was %s", n);
         return csi + n + SD;
     }
-    
+
     public String color(Color color, Color background, Font font, Style ... styles) {
         List<String> parts = new ArrayList<>();
         for (Style s : styles) {
@@ -156,47 +160,34 @@ class Codes {
         if(parts.isEmpty()) {
             return "";
         }
-        // TODO replace with a Joiner if we include Guava as a dependency
-        //return SEPARATOR_JOINER.appendTo(new StringBuilder(CSI), parts).append(SGR).toString();
-        StringBuilder output = new StringBuilder(csi);
-        for (String part : parts.subList(0, parts.size()-1)) {
-            output.append(part).append(SEPARATOR);
-        }
-        return output.append(parts.get(parts.size()-1)).append(SGR).toString();
+        return SEPARATOR_JOINER.appendTo(new StringBuilder(csi), parts).append(SGR).toString();
     }
-    
+
     public String clearFont() {
         return csi + Font.DEFAULT.code() + SGR;
     }
-    
+
     public String clear() {
         return csi + SGR;
     }
-    
+
     public String getCursor() {
         return csi + DSR;
     }
-    
+
     public String saveCursor() {
         return csi + SCP;
     }
-    
+
     public String restoreCursor() {
         return csi + RCP;
     }
-    
+
     public String hideCursor() {
         return csi + DECTCEM_HIDE;
     }
-    
+
     public String showCursor() {
         return csi + DECTCEM_SHOW;
-    }
-    
-    // TODO replace with Preconditions.checkArgument if Guava gets included
-    private static void checkArgument(boolean test, String message, Object ... args) {
-        if (!test) {
-            throw new IllegalArgumentException(String.format(message, args));
-        }
     }
 }
