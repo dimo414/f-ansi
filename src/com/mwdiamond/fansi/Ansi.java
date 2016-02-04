@@ -4,22 +4,63 @@ import static com.google.common.base.Preconditions.checkState;
 
 import java.io.PrintStream;
 import java.util.LinkedList;
+
+/**
+ * Entry point to the F-ANSI library. Generally you should use the ansi()
+ * method to obtain an instance of this class, so the library can determine
+ * the appropriate syntax to use for the environment.
+ *
+ * Ansi instances are stateful, and are not intended to be or assigned to
+ * variables. Instead, chain off the ansi() method directly to compose the
+ * behavior you need.
+ *
+ * Note that the "terminating" output methods (out, outln, err, errln) return
+ * an Ansi instance so you can continue chaining, but this is simply a
+ * convenience; no state from before the terminating method carries over.
+ *
+ * For example:
+ *
+ * <code>ansi().color(RED).out("Hello ").background(GREEN).out("World");</code>
+ *
+ * does not render "World" in red text, only a green background.
+ */
 public class Ansi {
     // Might make this dynamic in the future, based on the startup environment
     private static final Codes DEFAULT_CODES = Codes.REAL;
 
+    /**
+     * An instance of Ansi configured for the current environment. Generally
+     * you should use this method to obtain an Ansi instance.
+     *
+     * <p>Consider importing this method statically:
+     * <code>import static com.mwdiamond.fansi.Ansi.ansi;</code>
+     */
     public static Ansi ansi() {
         return new Ansi(DEFAULT_CODES);
     }
 
+    /**
+     * An instance of Ansi that always formats strings according to the Ansi
+     * standard, even when other environments were detected.
+     */
     public static Ansi realAnsi() {
         return new Ansi(Codes.REAL);
     }
 
+    /**
+     * An instance of Ansi that formats strings with the character sequences
+     * used to create escape codes. Useful for copying or piping into Bash.
+     */
     public static Ansi rawAnsi() {
         return new Ansi(Codes.RAW);
     }
 
+    /**
+     * Colors defined by the ANSI standard.
+     *
+     * <p>Consider importing this enum statically:
+     * <code>import static com.mwdiamond.fansi.Ansi.Color.*;</code>
+     */
     public static enum Color {
         BLACK(30),    DARK_GREY(90),
         RED(31),      LIGHT_RED(91),
@@ -49,6 +90,12 @@ public class Ansi {
         }
     }
 
+    /**
+     * Fonts defined by the ANSI standard.
+     *
+     * <p>Consider importing this enum statically:
+     * <code>import static com.mwdiamond.fansi.Ansi.Font.*;</code>
+     */
     public static enum Font {
         F1(11), F2(12), F3(13), F4(14), F5(15), F6(16), F7(17), F8(18), F9(19), FRAKTUR(20), DEFAULT(10);
 
@@ -63,6 +110,12 @@ public class Ansi {
         }
     }
 
+    /**
+     * Styles defined by the ANSI standard.
+     *
+     * <p>Consider importing this enum statically:
+     * <code>import static com.mwdiamond.fansi.Ansi.Style.*;</code>
+     */
     public static enum Style {
         BOLD(1), DIM(2), ITALIC(3), UNDERLINE(4), BLINK(5), BLINK_RAPID(6), REVERSE(7), CONCEAL(8), STRIKETHROUGH(9),
         FRAME(51), ENCIRCLE(52), OVERLINE(53);
@@ -110,53 +163,90 @@ public class Ansi {
         }
     }
 
+    /** Sets the title of the current window. */
     public void title(String title) {
         checkState(preBuffer.isEmpty() && postBuffer.isEmpty(), "Unnecessary chaining; cannot set additional formatting on the window title.");
         out(codes.title(title));
     }
 
+    /**
+     * Sets the color, and optionally the style(s), of the next block of text
+     * to display.
+     */
     public Ansi color(Color color, Style ... styles) {
         prepend(codes.color(color, Color.DEFAULT, Font.DEFAULT, styles));
         append(codes.clear());
         return this;
     }
 
+    /**
+     * Sets the color, font, and optionally the style(s), of the next block of
+     * text to display.
+     */
     public Ansi color(Color color, Font font, Style ... styles) {
         prepend(codes.color(color, Color.DEFAULT, font, styles));
         append(codes.clearFont(), codes.clear());
         return this;
     }
 
+    /**
+     * Sets the color and background, and optionally the style(s), of the next
+     * block of text to display.
+     */
     public Ansi color(Color color, Color background, Style ... styles) {
         prepend(codes.color(color, background, Font.DEFAULT, styles));
         append(codes.clear());
         return this;
     }
 
+    /**
+     * Sets the color, background, font, and optionally style(s), of the next
+     * block of text to display.
+     */
     public Ansi color(Color color, Color background, Font font, Style ... styles) {
         prepend(codes.color(color, background, font, styles));
         append(codes.clearFont(), codes.clear());
         return this;
     }
 
+    /**
+     * Sets the background color, and optionally the style(s), of the next
+     * block of text to display.
+     */
     public Ansi background(Color background, Style ... styles) {
         prepend(codes.color(Color.DEFAULT, background, Font.DEFAULT, styles));
         append(codes.clear());
         return this;
     }
 
+    /**
+     * Sets the font, and optionally the style(s), of the next block of text to
+     * display.
+     */
     public Ansi font(Font font, Style ... styles) {
         prepend(codes.color(Color.DEFAULT, Color.DEFAULT, font, styles));
         append(codes.clearFont(), codes.clear());
         return this;
     }
 
-    public Ansi style(Style ... styles) {
-        prepend(codes.color(Color.DEFAULT, Color.DEFAULT, Font.DEFAULT, styles));
+    /**
+     * Sets the color, and optionally the style(s), of the next block of text to
+     * display.
+     */
+    public Ansi style(Style style, Style ... styles) {
+        Style[] merged = new Style[styles.length + 1];
+        merged[0] = style;
+        System.arraycopy(styles, 0, merged, 1, styles.length);
+        prepend(codes.color(Color.DEFAULT, Color.DEFAULT, Font.DEFAULT, merged));
         append(codes.clear());
         return this;
     }
 
+    /**
+     * Repositions the cursor up or down a number of lines. Negative values
+     * move the cursor up, positive values move it down. Saves the cursor
+     * position so it can be restored with <code>restoreCursor()</code>.
+     */
     public Ansi moveCursor(int lines) {
         prepend(codes.saveCursor());
         if (lines < 0) {
@@ -167,27 +257,49 @@ public class Ansi {
         return this;
     }
 
+    /**
+     * Move the cursor up or down a number of lines and left or right a number
+     * of columns. Negative values are up/left, positive values are down/right.
+     * Saves the cursor position so it can be restored with
+     * <code>restoreCursor()</code>.
+     */
     public Ansi moveCursor(int lines, int columns) {
         prepend(codes.saveCursor(), codes.moveCursor(lines, columns));
         return this;
     }
 
+    /**
+     * Moves the cursor to a fixed position on the screen, where the top left
+     * corner is 1, 1. Restores the cursor to its original location afterwards.
+     */
     public Ansi fixed(int row, int column) {
         prepend(codes.saveCursor(), codes.positionCursor(row, column));
         append(codes.restoreCursor());
         return this;
     }
 
+    /**
+     * Restores the cursor to its previously saved position; use in tandem with
+     * <code>moveCursor</code>.
+     */
     public Ansi restoreCursor() {
         prepend(codes.restoreCursor());
         return this;
     }
 
+    /**
+     * Clears the current line and positions the cursor at the start of the
+     * line.
+     */
     public Ansi overwriteThisLine() {
         prepend(codes.clearLine());
         return this;
     }
 
+    /**
+     * Clears the current and previous lines and positions the cursor at the
+     * start of the previous line.
+     */
     public Ansi overwriteLastLine() {
         prepend(codes.clearLine(), codes.upLine(1), codes.clearLine());
         return this;
@@ -214,26 +326,58 @@ public class Ansi {
         return this;
     }
 
+    /**
+     * Writes text to stdout after piping it and args through String.format().
+     *
+     * <p>Compare to System.out.print()
+     */
     public Ansi out(String text, Object ... args) {
         return writeToPrintStream(stdout, false, text, args);
     }
 
+    /**
+     * Writes text to stdout after piping it and args through String.format(),
+     * also prints a newline.
+     *
+     * Compare to System.out.println()
+     */
     public Ansi outln(String text, Object ... args) {
         return writeToPrintStream(stdout, true, text, args);
     }
 
+    /**
+     * Simply writes a newline to stdout.
+     *
+     * Compare to System.out.println()
+     */
     public Ansi outln() {
         return writeToPrintStream(stdout, true, "");
     }
 
+    /**
+     * Writes text to stderr after piping it and args through String.format().
+     *
+     * <p>Compare to System.err.print()
+     */
     public Ansi err(String text, Object ... args) {
         return writeToPrintStream(stderr, false, text, args);
     }
 
+    /**
+     * Writes text to stderr after piping it and args through String.format(),
+     * also prints a newline.
+     *
+     * Compare to System.err.println()
+     */
     public Ansi errln(String text, Object ... args) {
         return writeToPrintStream(stderr, true, text, args);
     }
 
+    /**
+     * Simply writes a newline to stderr.
+     *
+     * Compare to System.err.println()
+     */
     public Ansi errln() {
         return writeToPrintStream(stderr, true, "");
     }
