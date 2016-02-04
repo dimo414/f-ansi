@@ -107,7 +107,7 @@ public class AnsiTest {
     @ChangeDetector(timesUpdated = 0)
     public void colorFont() {
         ansi().color(BLUE, F1).out(helloWorld);
-        assertThat(ansiForTests.getStdout()).isEqualTo("\\e[11;34m" + helloWorld + "\\e[m");
+        assertThat(ansiForTests.getStdout()).isEqualTo("\\e[11;34m" + helloWorld + "\\e[10m\\e[m");
     }
 
     @Test
@@ -128,7 +128,7 @@ public class AnsiTest {
         ansi().fixed(10, 20).color(RED).outln(helloWorld);
         ansi().color(RED).fixed(10, 20).outln(helloWorld);
         assertThat(ansiForTests.getStdout()).isEqualTo(
-            "\\e[s\\e[10;20H\\e[31mHello World\\e[u\\e[m\n" + // FIMXE this looks wrong
+            "\\e[s\\e[10;20H\\e[31mHello World\\e[m\\e[u\n" +
             "\\e[31m\\e[s\\e[10;20HHello World\\e[u\\e[m\n"
         );
     }

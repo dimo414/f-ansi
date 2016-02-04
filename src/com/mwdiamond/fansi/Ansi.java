@@ -1,7 +1,9 @@
 package com.mwdiamond.fansi;
 
+import static com.google.common.base.Preconditions.checkState;
 
 import java.io.PrintStream;
+import java.util.LinkedList;
 public class Ansi {
     // Might make this dynamic in the future, based on the startup environment
     private static final Codes DEFAULT_CODES = Codes.REAL;
@@ -79,8 +81,8 @@ public class Ansi {
     private final PrintStream stdout;
     private final PrintStream stderr;
     private final Codes codes;
-    private final StringBuffer preBuffer;
-    private final StringBuffer postBuffer;
+    private final LinkedList<String> preBuffer;
+    private final LinkedList<String> postBuffer;
 
     private Ansi(Codes codes) {
         this(System.out, System.err, codes);
@@ -91,110 +93,124 @@ public class Ansi {
         this.stdout = stdout;
         this.stderr = stderr;
         this.codes = codes;
-        preBuffer = new StringBuffer();
-        postBuffer = new StringBuffer();
+        preBuffer = new LinkedList<>();
+        postBuffer = new LinkedList<>();
+    }
+
+    private void prepend(String ... parts) {
+        for (String part : parts) {
+            preBuffer.add(part);
+        }
+    }
+
+    private void append(String ... parts) {
+        // prepend in reverse order, so the list ends up in the same order
+        for (int i = parts.length - 1; i >= 0; i--) {
+            postBuffer.addFirst(parts[i]);
+        }
     }
 
     public void title(String title) {
-        if(preBuffer.length() > 0 || postBuffer.length() > 0) {
-            throw new IllegalStateException("Unnecessary chaining; cannot set additional formatting on the window title.");
-        }
+        checkState(preBuffer.isEmpty() && postBuffer.isEmpty(), "Unnecessary chaining; cannot set additional formatting on the window title.");
         out(codes.title(title));
     }
 
     public Ansi color(Color color, Style ... styles) {
-        preBuffer.append(codes.color(color, Color.DEFAULT, Font.DEFAULT, styles));
-        postBuffer.append(codes.clear());
+        prepend(codes.color(color, Color.DEFAULT, Font.DEFAULT, styles));
+        append(codes.clear());
         return this;
     }
 
     public Ansi color(Color color, Font font, Style ... styles) {
-        preBuffer.append(codes.color(color, Color.DEFAULT, font, styles));
-        postBuffer.append(codes.clear());
+        prepend(codes.color(color, Color.DEFAULT, font, styles));
+        append(codes.clearFont(), codes.clear());
         return this;
     }
 
     public Ansi color(Color color, Color background, Style ... styles) {
-        preBuffer.append(codes.color(color, background, Font.DEFAULT, styles));
-        postBuffer.append(codes.clear());
+        prepend(codes.color(color, background, Font.DEFAULT, styles));
+        append(codes.clear());
         return this;
     }
 
     public Ansi color(Color color, Color background, Font font, Style ... styles) {
-        preBuffer.append(codes.color(color, background, font, styles));
-        postBuffer.append(codes.clearFont()).append(codes.clear());
+        prepend(codes.color(color, background, font, styles));
+        append(codes.clearFont(), codes.clear());
         return this;
     }
 
     public Ansi background(Color background, Style ... styles) {
-       preBuffer.append(codes.color(Color.DEFAULT, background, Font.DEFAULT, styles));
-       postBuffer.append(codes.clear());
-       return this;
+        prepend(codes.color(Color.DEFAULT, background, Font.DEFAULT, styles));
+        append(codes.clear());
+        return this;
     }
 
     public Ansi font(Font font, Style ... styles) {
-        preBuffer.append(codes.color(Color.DEFAULT, Color.DEFAULT, font, styles));
-        postBuffer.append(codes.clearFont()).append(codes.clear());
+        prepend(codes.color(Color.DEFAULT, Color.DEFAULT, font, styles));
+        append(codes.clearFont(), codes.clear());
         return this;
     }
 
     public Ansi style(Style ... styles) {
-        preBuffer.append(codes.color(Color.DEFAULT, Color.DEFAULT, Font.DEFAULT, styles));
-        postBuffer.append(codes.clear());
+        prepend(codes.color(Color.DEFAULT, Color.DEFAULT, Font.DEFAULT, styles));
+        append(codes.clear());
         return this;
     }
 
     public Ansi moveCursor(int lines) {
-        preBuffer.append(codes.saveCursor());
+        prepend(codes.saveCursor());
         if (lines < 0) {
-            preBuffer.append(codes.upLine(0 - lines));
+            prepend(codes.upLine(0 - lines));
         } else {
-            preBuffer.append(codes.downLine(lines)); // will raise an exception if 0
+            prepend(codes.downLine(lines)); // will raise an exception if 0
         }
         return this;
     }
 
     public Ansi moveCursor(int lines, int columns) {
-        preBuffer.append(codes.saveCursor())
-            .append(codes.moveCursor(lines, columns));
+        prepend(codes.saveCursor(), codes.moveCursor(lines, columns));
         return this;
     }
 
     public Ansi fixed(int row, int column) {
-        preBuffer.append(codes.saveCursor())
-            .append(codes.positionCursor(row, column));
-        postBuffer.insert(0, codes.restoreCursor());
+        prepend(codes.saveCursor(), codes.positionCursor(row, column));
+        append(codes.restoreCursor());
         return this;
     }
 
     public Ansi restoreCursor() {
-        preBuffer.append(codes.restoreCursor());
+        prepend(codes.restoreCursor());
         return this;
     }
 
     public Ansi overwriteThisLine() {
-        preBuffer.append(codes.clearLine());
+        prepend(codes.clearLine());
         return this;
     }
 
     public Ansi overwriteLastLine() {
-        preBuffer.append(codes.clearLine())
-            .append(codes.upLine(1))
-            .append(codes.clearLine());
+        prepend(codes.clearLine(), codes.upLine(1), codes.clearLine());
         return this;
     }
 
     private Ansi writeToPrintStream(PrintStream out, boolean newLine, String text, Object ... args) {
-        preBuffer.append(String.format(text, args)).append(postBuffer);
-
-        if (newLine) {
-            out.println(preBuffer);
-        } else {
-            out.print(preBuffer);
+        StringBuilder buffer = new StringBuilder();
+        for (String part : preBuffer) {
+            buffer.append(part);
+        }
+        buffer.append(String.format(text, args));
+        for (String part : postBuffer) {
+            buffer.append(part);
         }
 
-        preBuffer.setLength(0);
-        postBuffer.setLength(0);
+        if (newLine) {
+            out.println(buffer);
+        } else {
+            out.print(buffer);
+        }
+
+        preBuffer.clear();
+        postBuffer.clear();
         return this;
     }
 
