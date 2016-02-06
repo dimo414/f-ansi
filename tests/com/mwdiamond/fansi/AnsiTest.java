@@ -113,14 +113,28 @@ public class AnsiTest {
     @Test
     public void chainedColor() {
         ansi().color(BLUE).out(helloWorld).color(RED, GREEN).out(helloWorld);
-        assertThat(ansiForTests.getStdout()).isEqualTo("\\e[34mHello World\\e[m\\e[31;42mHello World\\e[m");
+        assertThat(ansiForTests.getStdout()).isEqualTo("\\e[34m" + helloWorld + "\\e[m\\e[31;42m" + helloWorld + "\\e[m");
+    }
+
+    @Test
+    @ChangeDetector(timesUpdated = 0)
+    public void color8Bit() {
+        ansi().color(100, 200).out(helloWorld);
+        assertThat(ansiForTests.getStdout()).isEqualTo("\\e[;100;;200m" + helloWorld + "\\e[m");
+    }
+
+    @Test
+    @ChangeDetector(timesUpdated = 0)
+    public void color24Bit() {
+        ansi().color(java.awt.Color.RED, java.awt.Color.BLUE).out(helloWorld);
+        assertThat(ansiForTests.getStdout()).isEqualTo("\\e[;255;0;0;;0;0;255m" + helloWorld + "\\e[m");
     }
 
     @Test
     @ChangeDetector(timesUpdated = 0)
     public void fixed() {
         ansi().fixed(10, 20).out(helloWorld);
-        assertThat(ansiForTests.getStdout()).isEqualTo("\\e[s\\e[10;20HHello World\\e[u");
+        assertThat(ansiForTests.getStdout()).isEqualTo("\\e[s\\e[10;20H" + helloWorld + "\\e[u");
     }
 
     @Test
@@ -128,8 +142,8 @@ public class AnsiTest {
         ansi().fixed(10, 20).color(RED).outln(helloWorld);
         ansi().color(RED).fixed(10, 20).outln(helloWorld);
         assertThat(ansiForTests.getStdout()).isEqualTo(
-            "\\e[s\\e[10;20H\\e[31mHello World\\e[m\\e[u\n" +
-            "\\e[31m\\e[s\\e[10;20HHello World\\e[u\\e[m\n"
+            "\\e[s\\e[10;20H\\e[31m" + helloWorld + "\\e[m\\e[u\n" +
+            "\\e[31m\\e[s\\e[10;20H" + helloWorld + "\\e[u\\e[m\n"
         );
     }
 
@@ -137,13 +151,13 @@ public class AnsiTest {
     @ChangeDetector(timesUpdated = 0)
     public void overwriteThisLine() {
         ansi().overwriteThisLine().out(helloWorld);
-        assertThat(ansiForTests.getStdout()).isEqualTo("\\e[2KHello World");
+        assertThat(ansiForTests.getStdout()).isEqualTo("\\e[2K" + helloWorld);
     }
 
     @Test
     @ChangeDetector(timesUpdated = 0)
     public void overwriteLastLine() {
         ansi().overwriteLastLine().out(helloWorld);
-        assertThat(ansiForTests.getStdout()).isEqualTo("\\e[2K\\e[1F\\e[2KHello World");
+        assertThat(ansiForTests.getStdout()).isEqualTo("\\e[2K\\e[1F\\e[2K" + helloWorld);
     }
 }
