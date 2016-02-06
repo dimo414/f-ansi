@@ -6,7 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import com.mwdiamond.fansi.Ansi.Color;
+import com.mwdiamond.fansi.Ansi.ColorType;
 import com.mwdiamond.fansi.Ansi.Font;
 import com.mwdiamond.fansi.Ansi.Style;
 
@@ -143,19 +145,50 @@ class Codes {
         return csi + n + SD;
     }
 
-    public String color(Color color, Color background, Font font, Style ... styles) {
-        List<String> parts = new ArrayList<>();
+    private List<Object> getColorCodeParts(ColorType color) {
+        if (color.namedColor() != null) {
+            return ImmutableList.<Object>of(color.namedColor().color());
+        } else if (color.n8BitColor() != null) {
+            return ImmutableList.<Object>of("", // FIXME 8 bit code
+                color.n8BitColor());
+        } else if (color.n24BitColor() != null) {
+            return ImmutableList.<Object>of("", // FIXME 24 bit code
+                color.n24BitColor().getRed(),
+                color.n24BitColor().getGreen(),
+                color.n24BitColor().getBlue());
+        }
+        throw new IllegalArgumentException("Unexected ColorType, " + color);
+    }
+
+    // TODO verify you can specify 8/24-bit background colors
+    private List<Object> getBackgroundCodeParts(ColorType color) {
+        if (color.namedColor() != null) {
+            return ImmutableList.<Object>of(color.namedColor().background());
+        } else if (color.n8BitColor() != null) {
+            return ImmutableList.<Object>of("", // FIXME 8 bit background code
+                color.n8BitColor());
+        } else if (color.n24BitColor() != null) {
+            return ImmutableList.<Object>of("", // FIXME 24 bit background code
+                color.n24BitColor().getRed(),
+                color.n24BitColor().getGreen(),
+                color.n24BitColor().getBlue());
+        }
+        throw new IllegalArgumentException("Unexected ColorType, " + color);
+    }
+
+    public String color(ColorType color, ColorType background, Font font, Style ... styles) {
+        List<Object> parts = new ArrayList<>();
         for (Style s : styles) {
-            parts.add(String.valueOf(s.code()));
+            parts.add(s.code());
         }
         if (font != Font.DEFAULT) {
-            parts.add(String.valueOf(font.code()));
+            parts.add(font.code());
         }
-        if (color != Color.DEFAULT) {
-            parts.add(String.valueOf(color.color()));
+        if (color.namedColor() != Color.DEFAULT) {
+            parts.addAll(getColorCodeParts(color));
         }
-        if (background != Color.DEFAULT) {
-            parts.add(String.valueOf(background.background()));
+        if (background.namedColor() != Color.DEFAULT) {
+            parts.addAll(getBackgroundCodeParts(background));
         }
         if(parts.isEmpty()) {
             return "";

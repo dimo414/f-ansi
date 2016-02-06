@@ -90,6 +90,38 @@ public class Ansi {
         }
     }
 
+    static class ColorType {
+        static ColorType DEFAULT = new ColorType(Color.DEFAULT);
+
+        private Color namedColor;
+        private Integer n8BitColor;
+        private java.awt.Color n24BitColor;
+
+        ColorType(Color color) {
+            namedColor = color;
+        }
+
+        ColorType(int color) {
+            n8BitColor = color;
+        }
+
+        ColorType(java.awt.Color color) {
+            n24BitColor = color;
+        }
+
+        Color namedColor() {
+            return namedColor;
+        }
+
+        Integer n8BitColor() {
+            return n8BitColor;
+        }
+
+        java.awt.Color n24BitColor() {
+            return n24BitColor;
+        }
+    }
+
     /**
      * Fonts defined by the ANSI standard.
      *
@@ -174,7 +206,32 @@ public class Ansi {
      * to display.
      */
     public Ansi color(Color color, Style ... styles) {
-        prepend(codes.color(color, Color.DEFAULT, Font.DEFAULT, styles));
+        prepend(codes.color(new ColorType(color), ColorType.DEFAULT, Font.DEFAULT, styles));
+        append(codes.clear());
+        return this;
+    }
+
+    /**
+     * Sets the color, and optionally the style(s), of the next block of text
+     * to display.
+     *
+     * TODO add link to 8-bit color reference.
+     */
+    public Ansi color(int color8Bit, Style ... styles) {
+        prepend(codes.color(new ColorType(color8Bit), ColorType.DEFAULT, Font.DEFAULT, styles));
+        append(codes.clear());
+        return this;
+    }
+
+    /**
+     * Sets the color, and optionally the style(s), of the next block of text
+     * to display.
+     *
+     * <p>Note that 24-bit color support is not universal. You should prefer to use Ansi.Color
+     * values where possible.
+     */
+    public Ansi color(java.awt.Color color, Style ... styles) {
+        prepend(codes.color(new ColorType(color), ColorType.DEFAULT, Font.DEFAULT, styles));
         append(codes.clear());
         return this;
     }
@@ -184,7 +241,32 @@ public class Ansi {
      * text to display.
      */
     public Ansi color(Color color, Font font, Style ... styles) {
-        prepend(codes.color(color, Color.DEFAULT, font, styles));
+        prepend(codes.color(new ColorType(color), ColorType.DEFAULT, font, styles));
+        append(codes.clearFont(), codes.clear());
+        return this;
+    }
+
+    /**
+     * Sets the color, font, and optionally the style(s), of the next block of
+     * text to display.
+     *
+     * TODO add link to 8-bit color reference.
+     */
+    public Ansi color(int color8Bit, Font font, Style ... styles) {
+        prepend(codes.color(new ColorType(color8Bit), ColorType.DEFAULT, font, styles));
+        append(codes.clearFont(), codes.clear());
+        return this;
+    }
+
+    /**
+     * Sets the color, font, and optionally the style(s), of the next block of
+     * text to display.
+     *
+     * <p>Note that 24-bit color support is not universal. You should prefer to use Ansi.Color
+     * values where possible.
+     */
+    public Ansi color(java.awt.Color color, Font font, Style ... styles) {
+        prepend(codes.color(new ColorType(color), ColorType.DEFAULT, font, styles));
         append(codes.clearFont(), codes.clear());
         return this;
     }
@@ -194,7 +276,32 @@ public class Ansi {
      * block of text to display.
      */
     public Ansi color(Color color, Color background, Style ... styles) {
-        prepend(codes.color(color, background, Font.DEFAULT, styles));
+        prepend(codes.color(new ColorType(color), new ColorType(background), Font.DEFAULT, styles));
+        append(codes.clear());
+        return this;
+    }
+
+    /**
+     * Sets the color and background, and optionally the style(s), of the next
+     * block of text to display.
+     *
+     * TODO add link to 8-bit color reference.
+     */
+    public Ansi color(int color8Bit, int background8Bit, Style ... styles) {
+        prepend(codes.color(new ColorType(color8Bit), new ColorType(background8Bit), Font.DEFAULT, styles));
+        append(codes.clear());
+        return this;
+    }
+
+    /**
+     * Sets the color and background, and optionally the style(s), of the next
+     * block of text to display.
+     *
+     * <p>Note that 24-bit color support is not universal. You should prefer to use Ansi.Color
+     * values where possible.
+     */
+    public Ansi color(java.awt.Color color, java.awt.Color background, Style ... styles) {
+        prepend(codes.color(new ColorType(color), new ColorType(background), Font.DEFAULT, styles));
         append(codes.clear());
         return this;
     }
@@ -204,7 +311,32 @@ public class Ansi {
      * block of text to display.
      */
     public Ansi color(Color color, Color background, Font font, Style ... styles) {
-        prepend(codes.color(color, background, font, styles));
+        prepend(codes.color(new ColorType(color), new ColorType(background), font, styles));
+        append(codes.clearFont(), codes.clear());
+        return this;
+    }
+
+    /**
+     * Sets the color, background, font, and optionally style(s), of the next
+     * block of text to display.
+     *
+     * TODO add link to 8-bit color reference.
+     */
+    public Ansi color(int color8Bit, int background8Bit, Font font, Style ... styles) {
+        prepend(codes.color(new ColorType(color8Bit), new ColorType(background8Bit), font, styles));
+        append(codes.clearFont(), codes.clear());
+        return this;
+    }
+
+    /**
+     * Sets the color, background, font, and optionally style(s), of the next
+     * block of text to display.
+     *
+     * <p>Note that 24-bit color support is not universal. You should prefer to use Ansi.Color
+     * values where possible.
+     */
+    public Ansi color(java.awt.Color color, java.awt.Color background, Font font, Style ... styles) {
+        prepend(codes.color(new ColorType(color), new ColorType(background), font, styles));
         append(codes.clearFont(), codes.clear());
         return this;
     }
@@ -214,7 +346,32 @@ public class Ansi {
      * block of text to display.
      */
     public Ansi background(Color background, Style ... styles) {
-        prepend(codes.color(Color.DEFAULT, background, Font.DEFAULT, styles));
+        prepend(codes.color(ColorType.DEFAULT, new ColorType(background), Font.DEFAULT, styles));
+        append(codes.clear());
+        return this;
+    }
+
+    /**
+     * Sets the background color, and optionally the style(s), of the next
+     * block of text to display.
+     *
+     * TODO add link to 8-bit color reference.
+     */
+    public Ansi background(int background8Bit, Style ... styles) {
+        prepend(codes.color(ColorType.DEFAULT, new ColorType(background8Bit), Font.DEFAULT, styles));
+        append(codes.clear());
+        return this;
+    }
+
+    /**
+     * Sets the background color, and optionally the style(s), of the next
+     * block of text to display.
+     *
+     * <p>Note that 24-bit color support is not universal. You should prefer to use Ansi.Color
+     * values where possible.
+     */
+    public Ansi background(java.awt.Color background, Style ... styles) {
+        prepend(codes.color(ColorType.DEFAULT, new ColorType(background), Font.DEFAULT, styles));
         append(codes.clear());
         return this;
     }
@@ -224,7 +381,7 @@ public class Ansi {
      * display.
      */
     public Ansi font(Font font, Style ... styles) {
-        prepend(codes.color(Color.DEFAULT, Color.DEFAULT, font, styles));
+        prepend(codes.color(ColorType.DEFAULT, ColorType.DEFAULT, font, styles));
         append(codes.clearFont(), codes.clear());
         return this;
     }
@@ -237,7 +394,7 @@ public class Ansi {
         Style[] merged = new Style[styles.length + 1];
         merged[0] = style;
         System.arraycopy(styles, 0, merged, 1, styles.length);
-        prepend(codes.color(Color.DEFAULT, Color.DEFAULT, Font.DEFAULT, merged));
+        prepend(codes.color(ColorType.DEFAULT, ColorType.DEFAULT, Font.DEFAULT, merged));
         append(codes.clear());
         return this;
     }
