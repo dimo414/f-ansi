@@ -2,9 +2,6 @@ package demo;
 
 import static com.mwdiamond.fansi.Ansi.*;
 
-import com.mwdiamond.fansi.Ansi.Color;
-import com.mwdiamond.fansi.Ansi.Style;
-
 public class FAnsiDemo {
     public static void main(String[] args) throws Exception {
         ansi().title("Look, I set the title!");

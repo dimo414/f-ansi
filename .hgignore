@@ -1,7 +1,8 @@
 glob:bin/*
-glob:.project
-glob:.classpath
-glob:.settings/*
+glob:demo-bin/*
 glob:tests-bin/*
 glob:test-output/*
 glob:dist/*
+glob:.project
+glob:.classpath
+glob:.settings/*
