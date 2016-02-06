@@ -6,6 +6,8 @@
     <property name="source" value="1.8"/>
     <property name="core.src" value="src/"/>
     <property name="core.bin" value="bin/"/>
+    <property name="demo.src" value="demo/"/>
+    <property name="demo.bin" value="demo-bin/"/>
     <property name="test.src" value="tests/"/>
     <property name="test.bin" value="tests-bin/"/>
     <property name="dist" value="dist/"/>
@@ -14,6 +16,9 @@
     <path id="core.classpath">
         <pathelement location="${core.bin}"/>
         <pathelement location="lib/guava-18.0.jar"/>
+    </path>
+    <path id="demo.classpath">
+        <pathelement location="${demo.bin}"/>
     </path>
     <path id="test.classpath">
         <pathelement location="${test.bin}"/>
@@ -53,6 +58,11 @@
         <javac deprecation="true" optimize="true" debug="true" debuglevel="${debuglevel}" destdir="${core.bin}" source="${source}" target="${target}" includeantruntime="false">
             <src path="${core.src}"/>
             <classpath refid="core.classpath"/>
+        </javac>
+        <javac deprecation="true" optimize="true" debug="true" debuglevel="${debuglevel}" destdir="${demo.bin}" source="${source}" target="${target}" includeantruntime="false">
+            <src path="${demo.src}"/>
+            <classpath refid="core.classpath"/>
+            <classpath refid="demo.classpath"/>
         </javac>
     </target>
     <target name="build-test" depends="build" description="Compile test classes">
