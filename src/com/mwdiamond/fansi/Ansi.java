@@ -110,31 +110,31 @@ public class Ansi {
         static ColorType DEFAULT = new ColorType(Color.DEFAULT);
 
         private Color namedColor;
-        private Integer n8BitColor;
-        private java.awt.Color n24BitColor;
+        private Integer colorIndex;
+        private java.awt.Color javaColor;
 
         ColorType(Color color) {
             namedColor = color;
         }
 
         ColorType(int color) {
-            n8BitColor = color;
+            colorIndex = color;
         }
 
         ColorType(java.awt.Color color) {
-            n24BitColor = color;
+            javaColor = color;
         }
 
         Color namedColor() {
             return namedColor;
         }
 
-        Integer n8BitColor() {
-            return n8BitColor;
+        Integer colorIndex() {
+            return colorIndex;
         }
 
-        java.awt.Color n24BitColor() {
-            return n24BitColor;
+        java.awt.Color javaColor() {
+            return javaColor;
         }
     }
 
@@ -233,8 +233,8 @@ public class Ansi {
      *
      * TODO add link to 8-bit color reference.
      */
-    public Ansi color(int color8Bit, Style ... styles) {
-        prepend(codes.color(new ColorType(color8Bit), ColorType.DEFAULT, Font.DEFAULT, styles));
+    public Ansi color(int colorIndex, Style ... styles) {
+        prepend(codes.color(new ColorType(colorIndex), ColorType.DEFAULT, Font.DEFAULT, styles));
         append(codes.clear());
         return this;
     }
@@ -268,8 +268,8 @@ public class Ansi {
      *
      * TODO add link to 8-bit color reference.
      */
-    public Ansi color(int color8Bit, Font font, Style ... styles) {
-        prepend(codes.color(new ColorType(color8Bit), ColorType.DEFAULT, font, styles));
+    public Ansi color(int colorIndex, Font font, Style ... styles) {
+        prepend(codes.color(new ColorType(colorIndex), ColorType.DEFAULT, font, styles));
         append(codes.clearFont(), codes.clear());
         return this;
     }
@@ -303,8 +303,8 @@ public class Ansi {
      *
      * TODO add link to 8-bit color reference.
      */
-    public Ansi color(int color8Bit, int background8Bit, Style ... styles) {
-        prepend(codes.color(new ColorType(color8Bit), new ColorType(background8Bit), Font.DEFAULT, styles));
+    public Ansi color(int colorIndex, int backgroundIndex, Style ... styles) {
+        prepend(codes.color(new ColorType(colorIndex), new ColorType(backgroundIndex), Font.DEFAULT, styles));
         append(codes.clear());
         return this;
     }
@@ -338,8 +338,8 @@ public class Ansi {
      *
      * TODO add link to 8-bit color reference.
      */
-    public Ansi color(int color8Bit, int background8Bit, Font font, Style ... styles) {
-        prepend(codes.color(new ColorType(color8Bit), new ColorType(background8Bit), font, styles));
+    public Ansi color(int colorIndex, int backgroundIndex, Font font, Style ... styles) {
+        prepend(codes.color(new ColorType(colorIndex), new ColorType(backgroundIndex), font, styles));
         append(codes.clearFont(), codes.clear());
         return this;
     }
@@ -373,8 +373,8 @@ public class Ansi {
      *
      * TODO add link to 8-bit color reference.
      */
-    public Ansi background(int background8Bit, Style ... styles) {
-        prepend(codes.color(ColorType.DEFAULT, new ColorType(background8Bit), Font.DEFAULT, styles));
+    public Ansi background(int backgroundIndex, Style ... styles) {
+        prepend(codes.color(ColorType.DEFAULT, new ColorType(backgroundIndex), Font.DEFAULT, styles));
         append(codes.clear());
         return this;
     }
