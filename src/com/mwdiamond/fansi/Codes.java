@@ -148,10 +148,10 @@ class Codes {
     private List<Object> getColorCodeParts(ColorType color) {
         if (color.namedColor() != null) {
             return ImmutableList.<Object>of(color.namedColor().color());
-        } else if (color.n8BitColor() != null) {
-            return Color.extended(color.n8BitColor(), false);
-        } else if (color.n24BitColor() != null) {
-            return Color.extended(color.n24BitColor(), false);
+        } else if (color.colorIndex() != null) {
+            return Color.extended(color.colorIndex(), false);
+        } else if (color.javaColor() != null) {
+            return Color.extended(color.javaColor(), false);
         }
         throw new IllegalArgumentException("Unexected ColorType, " + color);
     }
@@ -159,10 +159,10 @@ class Codes {
     private List<Object> getBackgroundCodeParts(ColorType color) {
         if (color.namedColor() != null) {
             return ImmutableList.<Object>of(color.namedColor().background());
-        } else if (color.n8BitColor() != null) {
-            return Color.extended(color.n8BitColor(), true);
-        } else if (color.n24BitColor() != null) {
-            return Color.extended(color.n24BitColor(), true);
+        } else if (color.colorIndex() != null) {
+            return Color.extended(color.colorIndex(), true);
+        } else if (color.javaColor() != null) {
+            return Color.extended(color.javaColor(), true);
         }
         throw new IllegalArgumentException("Unexected ColorType, " + color);
     }
