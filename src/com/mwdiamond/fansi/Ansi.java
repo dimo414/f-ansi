@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.mwdiamond.fansi.Codes.ColorType;
 
 /**
  * Entry point to the F-ANSI library. Generally you should use the ansi()
@@ -52,7 +53,8 @@ public class Ansi {
 
     /**
      * An instance of Ansi that formats strings with the character sequences
-     * used to create escape codes. Useful for copying or piping into Bash.
+     * used to create escape codes. Useful for copying or piping into Bash's
+     * <code>echo -e</code>.
      */
     public static Ansi rawAnsi() {
         return new Ansi(Codes.RAW);
@@ -108,38 +110,6 @@ public class Ansi {
 
     // TODO implement
     // public static int toColorIndex(java.awt.Color color)
-
-    static class ColorType {
-        static ColorType DEFAULT = new ColorType(Color.DEFAULT);
-
-        private Color namedColor;
-        private Integer colorIndex;
-        private java.awt.Color javaColor;
-
-        ColorType(Color color) {
-            namedColor = color;
-        }
-
-        ColorType(int color) {
-            colorIndex = color;
-        }
-
-        ColorType(java.awt.Color color) {
-            javaColor = color;
-        }
-
-        Color namedColor() {
-            return namedColor;
-        }
-
-        Integer colorIndex() {
-            return colorIndex;
-        }
-
-        java.awt.Color javaColor() {
-            return javaColor;
-        }
-    }
 
     /**
      * Fonts defined by the ANSI standard.

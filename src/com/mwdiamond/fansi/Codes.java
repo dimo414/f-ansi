@@ -8,7 +8,6 @@ import java.util.List;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.mwdiamond.fansi.Ansi.Color;
-import com.mwdiamond.fansi.Ansi.ColorType;
 import com.mwdiamond.fansi.Ansi.Font;
 import com.mwdiamond.fansi.Ansi.Style;
 
@@ -213,5 +212,37 @@ class Codes {
 
     public String showCursor() {
         return csi + DECTCEM_SHOW;
+    }
+
+    static class ColorType {
+        static ColorType DEFAULT = new ColorType(Color.DEFAULT);
+
+        private Color namedColor;
+        private Integer colorIndex;
+        private java.awt.Color javaColor;
+
+        ColorType(Color color) {
+            namedColor = color;
+        }
+
+        ColorType(int color) {
+            colorIndex = color;
+        }
+
+        ColorType(java.awt.Color color) {
+            javaColor = color;
+        }
+
+        Color namedColor() {
+            return namedColor;
+        }
+
+        Integer colorIndex() {
+            return colorIndex;
+        }
+
+        java.awt.Color javaColor() {
+            return javaColor;
+        }
     }
 }
