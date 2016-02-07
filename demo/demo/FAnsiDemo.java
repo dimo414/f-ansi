@@ -8,6 +8,7 @@ public class FAnsiDemo {
 
         ansi().color(Color.RED).out("Hello").out(" - ").color(Color.LIGHT_GREEN).outln("%s", "World");
         ansi().color(Color.MAGENTA, Color.YELLOW, Style.BOLD).outln("Uuugly...");
+        ansi().color(100).out("Color Index").out(" ").color(java.awt.Color.ORANGE).outln("Java Color");
         ansi().out("[ ").color(Color.GREEN).out("OK").outln(" ] %s", "A Long Message");
         ansi().outln("Waiting...").overwriteLastLine().outln(slowCommand());
         slowCommand();

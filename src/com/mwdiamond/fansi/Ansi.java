@@ -106,6 +106,9 @@ public class Ansi {
         }
     }
 
+    // TODO implement
+    // public static int toColorIndex(java.awt.Color color)
+
     static class ColorType {
         static ColorType DEFAULT = new ColorType(Color.DEFAULT);
 
