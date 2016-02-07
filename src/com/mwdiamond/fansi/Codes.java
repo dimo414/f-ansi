@@ -149,29 +149,20 @@ class Codes {
         if (color.namedColor() != null) {
             return ImmutableList.<Object>of(color.namedColor().color());
         } else if (color.n8BitColor() != null) {
-            return ImmutableList.<Object>of("", // FIXME 8 bit code
-                color.n8BitColor());
+            return Color.extended(color.n8BitColor(), false);
         } else if (color.n24BitColor() != null) {
-            return ImmutableList.<Object>of("", // FIXME 24 bit code
-                color.n24BitColor().getRed(),
-                color.n24BitColor().getGreen(),
-                color.n24BitColor().getBlue());
+            return Color.extended(color.n24BitColor(), false);
         }
         throw new IllegalArgumentException("Unexected ColorType, " + color);
     }
 
-    // TODO verify you can specify 8/24-bit background colors
     private List<Object> getBackgroundCodeParts(ColorType color) {
         if (color.namedColor() != null) {
             return ImmutableList.<Object>of(color.namedColor().background());
         } else if (color.n8BitColor() != null) {
-            return ImmutableList.<Object>of("", // FIXME 8 bit background code
-                color.n8BitColor());
+            return Color.extended(color.n8BitColor(), true);
         } else if (color.n24BitColor() != null) {
-            return ImmutableList.<Object>of("", // FIXME 24 bit background code
-                color.n24BitColor().getRed(),
-                color.n24BitColor().getGreen(),
-                color.n24BitColor().getBlue());
+            return Color.extended(color.n24BitColor(), true);
         }
         throw new IllegalArgumentException("Unexected ColorType, " + color);
     }

@@ -4,6 +4,9 @@ import static com.google.common.base.Preconditions.checkState;
 
 import java.io.PrintStream;
 import java.util.LinkedList;
+import java.util.List;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * Entry point to the F-ANSI library. Generally you should use the ansi()
@@ -74,6 +77,9 @@ public class Ansi {
         DEFAULT(39);
 
         private static final int BACKGROUND = 10; // additive
+        private static final int EXTENDED = 38;
+        private static final int RGB = 2;
+        private static final int COLOR_INDEX = 5;
 
         private final int code;
 
@@ -87,6 +93,16 @@ public class Ansi {
 
         int background() {
             return color() + BACKGROUND;
+        }
+
+        static List<Object> extended(int colorIndex, boolean background) {
+            int code = background ? EXTENDED + BACKGROUND : EXTENDED;
+            return ImmutableList.<Object>of(code, COLOR_INDEX, colorIndex);
+        }
+
+        static List<Object> extended(java.awt.Color color, boolean background) {
+            int code = background ? EXTENDED + BACKGROUND : EXTENDED;
+            return ImmutableList.<Object>of(code, RGB, color.getRed(), color.getGreen(), color.getBlue());
         }
     }
 
