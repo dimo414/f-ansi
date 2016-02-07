@@ -117,17 +117,17 @@ public class AnsiTest {
     }
 
     @Test
-    @ChangeDetector(timesUpdated = 0)
+    @ChangeDetector(timesUpdated = 1)
     public void color8Bit() {
         ansi().color(100, 200).out(helloWorld);
-        assertThat(ansiForTests.getStdout()).isEqualTo("\\e[;100;;200m" + helloWorld + "\\e[m");
+        assertThat(ansiForTests.getStdout()).isEqualTo("\\e[38;5;100;48;5;200m" + helloWorld + "\\e[m");
     }
 
     @Test
-    @ChangeDetector(timesUpdated = 0)
+    @ChangeDetector(timesUpdated = 1)
     public void color24Bit() {
         ansi().color(java.awt.Color.RED, java.awt.Color.BLUE).out(helloWorld);
-        assertThat(ansiForTests.getStdout()).isEqualTo("\\e[;255;0;0;;0;0;255m" + helloWorld + "\\e[m");
+        assertThat(ansiForTests.getStdout()).isEqualTo("\\e[38;2;255;0;0;48;2;0;0;255m" + helloWorld + "\\e[m");
     }
 
     @Test
