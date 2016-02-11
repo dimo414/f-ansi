@@ -84,9 +84,21 @@
     </target>
 
     <!-- Jar -->
-    <target name="jar">
+    <target name="dist" depends="build" description="Build distribution Jars">
         <jar destfile="${dist}/f-ansi.jar">
             <fileset dir="${core.bin}"/>
+        </jar>
+        <jar destfile="${dist}/f-ansi-sources.jar">
+            <fileset dir="${core.src}" includes="**/*.java"/>
+        </jar>
+        <jar destfile="${dist}/f-ansi-no-dependencies.jar">
+            <fileset dir="${core.bin}"/>
+            <!-- TODO reference core.classpath rather than manually enumerate the libs -->
+            <zipfileset excludes="META-INF/*.SF" src="lib/guava-18.0.jar"/>
+        </jar>
+        <jar destfile="${dist}/f-ansi-demo.jar">
+            <fileset dir="${demo.bin}"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dist}/f-ansi-no-dependencies.jar"/>
         </jar>
     </target>
 </project>
