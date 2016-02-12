@@ -3,6 +3,7 @@ package com.mwdiamond.fansi;
 import static com.google.common.base.Preconditions.checkState;
 
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,26 +11,43 @@ import com.google.common.collect.ImmutableList;
 import com.mwdiamond.fansi.Codes.ColorType;
 
 /**
- * Entry point to the F-ANSI library. Generally you should use the ansi()
- * method to obtain an instance of this class, so the library can determine
- * the appropriate syntax to use for the environment.
+ * The Ansi class wraps an application's stdout and stderr to provide
+ * additional console functionality via
+ * <a href="https://en.wikipedia.org/wiki/ANSI_escape_code">ANSI escape codes</a>,
+ * such as colored output and cursor repositioning. Generally you should use
+ * the <code>ansi()</code> method to obtain an instance of this class, which
+ * will dynamically determine the appropriate syntax to use for the current
+ * environment.
  *
- * Ansi instances are stateful, and are not intended to be or assigned to
- * variables. Instead, chain off the ansi() method directly to compose the
- * behavior you need.
+ * <p>The ANSI standard is not universally implemented, and behavior will be
+ * terminal-specific. For example while most terminals support the standard
+ * named colors, support for the more versatile color indexes and 24-bit
+ * full-color is less consistent. Cursor movement support is similarly
+ * limited on certain terminals. Be sure to test the behavior you expect
+ * on any terminals you intend to support. <!--TODO verify:
+ * You can often fallback gracefully by preceding your desired behavior
+ * with a backup, like so:
+ * 
+ * <pre><code>ansi().color(RED).color(100).out("Orange, or Red if not supported");</code></pre>-->
  *
- * Note that the "terminating" output methods (out, outln, err, errln) return
+ * <p>Ansi instances are stateful, and are not intended to be persisted,
+ * assigned to variables, or used across threads. Instead, chain off the
+ * <code>ansi()</code> method directly to compose the behavior you need in a
+ * fluent style.
+ *
+ * <p>Note that the "terminating" output methods (out, outln, err, errln) return
  * an Ansi instance so you can continue chaining, but this is simply a
  * convenience; no state from before the terminating method carries over.
  *
- * For example:
+ * <p>For example:
  *
- * <code>ansi().color(RED).out("Hello ").background(GREEN).out("World");</code>
+ * <pre><code>ansi().color(RED).out("Hello ").background(GREEN).out("World");</code></pre>
  *
- * does not render "World" in red text, only a green background.
+ * <p>does not render "World" in red text, only a green background.
  */
 public class Ansi {
     // Might make this dynamic in the future, based on the startup environment
+    // E.g. check if System.console() returns null
     private static final Codes DEFAULT_CODES = Codes.REAL;
 
     /**
@@ -38,14 +56,18 @@ public class Ansi {
      *
      * <p>Consider importing this method statically:
      * <code>import static com.mwdiamond.fansi.Ansi.ansi;</code>
+     *
+     * @return an Ansi instance wrapping System.out and System.err.
      */
     public static Ansi ansi() {
         return new Ansi(DEFAULT_CODES);
     }
 
     /**
-     * An instance of Ansi that always formats strings according to the Ansi
+     * An instance of Ansi that always formats strings according to the ANSI
      * standard, even when other environments were detected.
+     *
+     * @return an Ansi instance wrapping System.out and System.err.
      */
     public static Ansi realAnsi() {
         return new Ansi(Codes.REAL);
@@ -55,6 +77,8 @@ public class Ansi {
      * An instance of Ansi that formats strings with the character sequences
      * used to create escape codes. Useful for copying or piping into Bash's
      * <code>echo -e</code>.
+     *
+     * @return an Ansi instance wrapping System.out and System.err.
      */
     public static Ansi rawAnsi() {
         return new Ansi(Codes.RAW);
@@ -62,6 +86,9 @@ public class Ansi {
 
     /**
      * Colors defined by the ANSI standard.
+     *
+     * <p>These are likely to be supported by most modern terminals, but
+     * different terminals may use different RGB values to render them.
      *
      * <p>Consider importing this enum statically:
      * <code>import static com.mwdiamond.fansi.Ansi.Color.*;</code>
@@ -89,19 +116,23 @@ public class Ansi {
             this.code = code;
         }
 
+        /** Returns the code associated with this color. */
         int color() {
             return code;
         }
 
+        /** Returns the code associated with this color as a background. */
         int background() {
             return color() + BACKGROUND;
         }
 
+        /** Creates a list of the codes to specify a color index. */
         static List<Object> extended(int colorIndex, boolean background) {
             int code = background ? EXTENDED + BACKGROUND : EXTENDED;
             return ImmutableList.<Object>of(code, COLOR_INDEX, colorIndex);
         }
 
+        /** Creates a list of the codes to specify an RGB color. */
         static List<Object> extended(java.awt.Color color, boolean background) {
             int code = background ? EXTENDED + BACKGROUND : EXTENDED;
             return ImmutableList.<Object>of(code, RGB, color.getRed(), color.getGreen(), color.getBlue());
@@ -113,6 +144,9 @@ public class Ansi {
 
     /**
      * Fonts defined by the ANSI standard.
+     *
+     * <p>Many terminals do not support different fonts; it's likely specifying
+     * these will do nothing.
      *
      * <p>Consider importing this enum statically:
      * <code>import static com.mwdiamond.fansi.Ansi.Font.*;</code>
@@ -126,13 +160,17 @@ public class Ansi {
             this.code = code;
         }
 
-        public int code() {
+        int code() {
             return code;
         }
     }
 
     /**
      * Styles defined by the ANSI standard.
+     *
+     * <p>Many terminals support at least a subset of these styles (notably
+     * <code>BOLD</code>), but others are less common. Some, notably
+     * <code>BLINK</code>, are intentionally disabled in many terminals.
      *
      * <p>Consider importing this enum statically:
      * <code>import static com.mwdiamond.fansi.Ansi.Style.*;</code>
@@ -147,7 +185,7 @@ public class Ansi {
             this.code = code;
         }
 
-        public int code() {
+        int code() {
             return code;
         }
     }
@@ -172,9 +210,7 @@ public class Ansi {
     }
 
     private void prepend(String ... parts) {
-        for (String part : parts) {
-            preBuffer.add(part);
-        }
+        preBuffer.addAll(Arrays.asList(parts));
     }
 
     private void append(String ... parts) {
@@ -184,7 +220,11 @@ public class Ansi {
         }
     }
 
-    /** Sets the title of the current window. */
+    /**
+     * Sets the title of the current window.
+     *
+     * @param title text to make the current window title.
+     * */
     public void title(String title) {
         checkState(preBuffer.isEmpty() && postBuffer.isEmpty(), "Unnecessary chaining; cannot set additional formatting on the window title.");
         out(codes.title(title));
@@ -193,6 +233,10 @@ public class Ansi {
     /**
      * Sets the color, and optionally the style(s), of the next block of text
      * to display.
+     *
+     * @param color A standard ANSI color.
+     * @param styles Any additional styles to apply, <em>optional</em>.
+     * @return This Ansi instance, to continue modifying the output.
      */
     public Ansi color(Color color, Style ... styles) {
         prepend(codes.color(new ColorType(color), ColorType.DEFAULT, Font.DEFAULT, styles));
@@ -204,8 +248,11 @@ public class Ansi {
      * Sets the color, and optionally the style(s), of the next block of text
      * to display.
      *
-     * TODO add link to 8-bit color reference.
+     * @param colorIndex A color index, 0-255.
+     * @param styles Any additional ANSI styles to apply, <em>optional</em>.
+     * @return This Ansi instance, to continue modifying the output.
      */
+    // TODO add link to 8-bit color reference.
     public Ansi color(int colorIndex, Style ... styles) {
         prepend(codes.color(new ColorType(colorIndex), ColorType.DEFAULT, Font.DEFAULT, styles));
         append(codes.clear());
@@ -218,6 +265,10 @@ public class Ansi {
      *
      * <p>Note that 24-bit color support is not universal. You should prefer to use Ansi.Color
      * values where possible.
+     *
+     * @param color A Java color, which will be mapped to RGB integer values.
+     * @param styles Any additional styles to apply, <em>optional</em>.
+     * @return This Ansi instance, to continue modifying the output.
      */
     public Ansi color(java.awt.Color color, Style ... styles) {
         prepend(codes.color(new ColorType(color), ColorType.DEFAULT, Font.DEFAULT, styles));
@@ -228,6 +279,11 @@ public class Ansi {
     /**
      * Sets the color, font, and optionally the style(s), of the next block of
      * text to display.
+     *
+     * @param color A standard ANSI color.
+     * @param font a standard ANSI font.
+     * @param styles Any additional styles to apply, <em>optional</em>.
+     * @return This Ansi instance, to continue modifying the output.
      */
     public Ansi color(Color color, Font font, Style ... styles) {
         prepend(codes.color(new ColorType(color), ColorType.DEFAULT, font, styles));
@@ -239,8 +295,12 @@ public class Ansi {
      * Sets the color, font, and optionally the style(s), of the next block of
      * text to display.
      *
-     * TODO add link to 8-bit color reference.
+     * @param colorIndex A color index, 0-255.
+     * @param font a standard ANSI font.
+     * @param styles Any additional ANSI styles to apply, <em>optional</em>.
+     * @return This Ansi instance, to continue modifying the output.
      */
+    // TODO add link to 8-bit color reference.
     public Ansi color(int colorIndex, Font font, Style ... styles) {
         prepend(codes.color(new ColorType(colorIndex), ColorType.DEFAULT, font, styles));
         append(codes.clearFont(), codes.clear());
@@ -253,6 +313,11 @@ public class Ansi {
      *
      * <p>Note that 24-bit color support is not universal. You should prefer to use Ansi.Color
      * values where possible.
+     *
+     * @param color A Java color, which will be mapped to RGB integer values.
+     * @param font a standard ANSI font.
+     * @param styles Any additional styles to apply, <em>optional</em>.
+     * @return This Ansi instance, to continue modifying the output.
      */
     public Ansi color(java.awt.Color color, Font font, Style ... styles) {
         prepend(codes.color(new ColorType(color), ColorType.DEFAULT, font, styles));
@@ -263,6 +328,11 @@ public class Ansi {
     /**
      * Sets the color and background, and optionally the style(s), of the next
      * block of text to display.
+     *
+     * @param color A standard ANSI color.
+     * @param background A standard ANSI color.
+     * @param styles Any additional styles to apply, <em>optional</em>.
+     * @return This Ansi instance, to continue modifying the output.
      */
     public Ansi color(Color color, Color background, Style ... styles) {
         prepend(codes.color(new ColorType(color), new ColorType(background), Font.DEFAULT, styles));
@@ -274,8 +344,12 @@ public class Ansi {
      * Sets the color and background, and optionally the style(s), of the next
      * block of text to display.
      *
-     * TODO add link to 8-bit color reference.
+     * @param colorIndex A color index, 0-255.
+     * @param backgroundIndex A color index, 0-255.
+     * @param styles Any additional ANSI styles to apply, <em>optional</em>.
+     * @return This Ansi instance, to continue modifying the output.
      */
+    // TODO add link to 8-bit color reference.
     public Ansi color(int colorIndex, int backgroundIndex, Style ... styles) {
         prepend(codes.color(new ColorType(colorIndex), new ColorType(backgroundIndex), Font.DEFAULT, styles));
         append(codes.clear());
@@ -288,6 +362,11 @@ public class Ansi {
      *
      * <p>Note that 24-bit color support is not universal. You should prefer to use Ansi.Color
      * values where possible.
+     *
+     * @param color A Java color, which will be mapped to RGB integer values.
+     * @param background A Java color, which will be mapped to RGB integer values.
+     * @param styles Any additional styles to apply, <em>optional</em>.
+     * @return This Ansi instance, to continue modifying the output.
      */
     public Ansi color(java.awt.Color color, java.awt.Color background, Style ... styles) {
         prepend(codes.color(new ColorType(color), new ColorType(background), Font.DEFAULT, styles));
@@ -298,6 +377,12 @@ public class Ansi {
     /**
      * Sets the color, background, font, and optionally style(s), of the next
      * block of text to display.
+     *
+     * @param color A standard ANSI color.
+     * @param background A standard ANSI color.
+     * @param font a standard ANSI font.
+     * @param styles Any additional styles to apply, <em>optional</em>.
+     * @return This Ansi instance, to continue modifying the output.
      */
     public Ansi color(Color color, Color background, Font font, Style ... styles) {
         prepend(codes.color(new ColorType(color), new ColorType(background), font, styles));
@@ -309,8 +394,13 @@ public class Ansi {
      * Sets the color, background, font, and optionally style(s), of the next
      * block of text to display.
      *
-     * TODO add link to 8-bit color reference.
+     * @param colorIndex A color index, 0-255.
+     * @param backgroundIndex A color index, 0-255.
+     * @param font a standard ANSI font.
+     * @param styles Any additional ANSI styles to apply, <em>optional</em>.
+     * @return This Ansi instance, to continue modifying the output.
      */
+    // TODO add link to 8-bit color reference.
     public Ansi color(int colorIndex, int backgroundIndex, Font font, Style ... styles) {
         prepend(codes.color(new ColorType(colorIndex), new ColorType(backgroundIndex), font, styles));
         append(codes.clearFont(), codes.clear());
@@ -323,6 +413,12 @@ public class Ansi {
      *
      * <p>Note that 24-bit color support is not universal. You should prefer to use Ansi.Color
      * values where possible.
+     *
+     * @param color A Java color, which will be mapped to RGB integer values.
+     * @param background A Java color, which will be mapped to RGB integer values.
+     * @param font a standard ANSI font.
+     * @param styles Any additional styles to apply, <em>optional</em>.
+     * @return This Ansi instance, to continue modifying the output.
      */
     public Ansi color(java.awt.Color color, java.awt.Color background, Font font, Style ... styles) {
         prepend(codes.color(new ColorType(color), new ColorType(background), font, styles));
@@ -333,6 +429,10 @@ public class Ansi {
     /**
      * Sets the background color, and optionally the style(s), of the next
      * block of text to display.
+     *
+     * @param background A standard ANSI color.
+     * @param styles Any additional styles to apply, <em>optional</em>.
+     * @return This Ansi instance, to continue modifying the output.
      */
     public Ansi background(Color background, Style ... styles) {
         prepend(codes.color(ColorType.DEFAULT, new ColorType(background), Font.DEFAULT, styles));
@@ -344,8 +444,11 @@ public class Ansi {
      * Sets the background color, and optionally the style(s), of the next
      * block of text to display.
      *
-     * TODO add link to 8-bit color reference.
+     * @param backgroundIndex A color index, 0-255.
+     * @param styles Any additional ANSI styles to apply, <em>optional</em>.
+     * @return This Ansi instance, to continue modifying the output.
      */
+    // TODO add link to 8-bit color reference.
     public Ansi background(int backgroundIndex, Style ... styles) {
         prepend(codes.color(ColorType.DEFAULT, new ColorType(backgroundIndex), Font.DEFAULT, styles));
         append(codes.clear());
@@ -358,6 +461,10 @@ public class Ansi {
      *
      * <p>Note that 24-bit color support is not universal. You should prefer to use Ansi.Color
      * values where possible.
+     *
+     * @param background A Java color, which will be mapped to RGB integer values.
+     * @param styles Any additional styles to apply, <em>optional</em>.
+     * @return This Ansi instance, to continue modifying the output.
      */
     public Ansi background(java.awt.Color background, Style ... styles) {
         prepend(codes.color(ColorType.DEFAULT, new ColorType(background), Font.DEFAULT, styles));
@@ -368,6 +475,10 @@ public class Ansi {
     /**
      * Sets the font, and optionally the style(s), of the next block of text to
      * display.
+     *
+     * @param font a standard ANSI font.
+     * @param styles Any additional ANSI styles to apply, <em>optional</em>.
+     * @return This Ansi instance, to continue modifying the output.
      */
     public Ansi font(Font font, Style ... styles) {
         prepend(codes.color(ColorType.DEFAULT, ColorType.DEFAULT, font, styles));
@@ -378,6 +489,10 @@ public class Ansi {
     /**
      * Sets the color, and optionally the style(s), of the next block of text to
      * display.
+     *
+     * @param style A standard ANSI style.
+     * @param styles Any additional ANSI styles to apply, <em>optional</em>.
+     * @return This Ansi instance, to continue modifying the output.
      */
     public Ansi style(Style style, Style ... styles) {
         Style[] merged = new Style[styles.length + 1];
@@ -392,6 +507,9 @@ public class Ansi {
      * Repositions the cursor up or down a number of lines. Negative values
      * move the cursor up, positive values move it down. Saves the cursor
      * position so it can be restored with <code>restoreCursor()</code>.
+     *
+     * @param lines a number of lines to move the cursor from its current position.
+     * @return This Ansi instance, to continue modifying the output.
      */
     public Ansi moveCursor(int lines) {
         prepend(codes.saveCursor());
@@ -408,6 +526,10 @@ public class Ansi {
      * of columns. Negative values are up/left, positive values are down/right.
      * Saves the cursor position so it can be restored with
      * <code>restoreCursor()</code>.
+     *
+     * @param lines a number of lines to move the cursor from its current position.
+     * @param columns a number of columns to move the cursor from its current position.
+     * @return This Ansi instance, to continue modifying the output.
      */
     public Ansi moveCursor(int lines, int columns) {
         prepend(codes.saveCursor(), codes.moveCursor(lines, columns));
@@ -417,6 +539,10 @@ public class Ansi {
     /**
      * Moves the cursor to a fixed position on the screen, where the top left
      * corner is 1, 1. Restores the cursor to its original location afterwards.
+     *
+     * @param row the row to move the cursor to.
+     * @param column the column to move the cursor to.
+     * @return This Ansi instance, to continue modifying the output.
      */
     public Ansi fixed(int row, int column) {
         prepend(codes.saveCursor(), codes.positionCursor(row, column));
@@ -427,6 +553,8 @@ public class Ansi {
     /**
      * Restores the cursor to its previously saved position; use in tandem with
      * <code>moveCursor</code>.
+     *
+     * @return This Ansi instance, to continue modifying the output.
      */
     public Ansi restoreCursor() {
         prepend(codes.restoreCursor());
@@ -436,6 +564,8 @@ public class Ansi {
     /**
      * Clears the current line and positions the cursor at the start of the
      * line.
+     *
+     * @return This Ansi instance, to continue modifying the output.
      */
     public Ansi overwriteThisLine() {
         prepend(codes.clearLine());
@@ -445,6 +575,8 @@ public class Ansi {
     /**
      * Clears the current and previous lines and positions the cursor at the
      * start of the previous line.
+     *
+     * @return This Ansi instance, to continue modifying the output.
      */
     public Ansi overwriteLastLine() {
         prepend(codes.clearLine(), codes.upLine(1), codes.clearLine());
@@ -456,7 +588,13 @@ public class Ansi {
         for (String part : preBuffer) {
             buffer.append(part);
         }
-        buffer.append(String.format(text, args));
+
+        if (args.length > 0) {
+            buffer.append(String.format(text, args));
+        } else {
+            buffer.append(text);
+        }
+
         for (String part : postBuffer) {
             buffer.append(part);
         }
@@ -475,7 +613,11 @@ public class Ansi {
     /**
      * Writes text to stdout after piping it and args through String.format().
      *
-     * <p>Compare to System.out.print()
+     * <p>Compare to <code>System.out.print()</code>
+     *
+     * @param text the text to write to stdout, wrapped by any previously-specified ANSI codes.
+     * @param args Arguments to use if text contains printf-style tokens, <em>optional</em>.
+     * @return a clean Ansi instance, to continue chaining output.
      */
     public Ansi out(String text, Object ... args) {
         return writeToPrintStream(stdout, false, text, args);
@@ -485,7 +627,11 @@ public class Ansi {
      * Writes text to stdout after piping it and args through String.format(),
      * also prints a newline.
      *
-     * Compare to System.out.println()
+     * <p>Compare to <code>System.out.println()</code>
+     *
+     * @param text the text to write to stdout, wrapped by any previously-specified ANSI codes.
+     * @param args Arguments to use if text contains printf-style tokens, <em>optional</em>.
+     * @return a clean Ansi instance, to continue chaining output.
      */
     public Ansi outln(String text, Object ... args) {
         return writeToPrintStream(stdout, true, text, args);
@@ -494,7 +640,9 @@ public class Ansi {
     /**
      * Simply writes a newline to stdout.
      *
-     * Compare to System.out.println()
+     * <p>Compare to <code>System.out.println()</code>
+     *
+     * @return a clean Ansi instance, to continue chaining output.
      */
     public Ansi outln() {
         return writeToPrintStream(stdout, true, "");
@@ -503,7 +651,11 @@ public class Ansi {
     /**
      * Writes text to stderr after piping it and args through String.format().
      *
-     * <p>Compare to System.err.print()
+     * <p>Compare to <code>System.err.print()</code>
+     *
+     * @param text the text to write to stderr, wrapped by any previously-specified ANSI codes.
+     * @param args Arguments to use if text contains printf-style tokens, <em>optional</em>.
+     * @return a clean Ansi instance, to continue chaining output.
      */
     public Ansi err(String text, Object ... args) {
         return writeToPrintStream(stderr, false, text, args);
@@ -513,7 +665,11 @@ public class Ansi {
      * Writes text to stderr after piping it and args through String.format(),
      * also prints a newline.
      *
-     * Compare to System.err.println()
+     * <p>Compare to <code>System.err.println()</code>
+     *
+     * @param text the text to write to stderr, wrapped by any previously-specified ANSI codes.
+     * @param args Arguments to use if text contains printf-style tokens, <em>optional</em>.
+     * @return a clean Ansi instance, to continue chaining output.
      */
     public Ansi errln(String text, Object ... args) {
         return writeToPrintStream(stderr, true, text, args);
@@ -522,7 +678,9 @@ public class Ansi {
     /**
      * Simply writes a newline to stderr.
      *
-     * Compare to System.err.println()
+     * <p>Compare to <code>System.err.println()</code>
+     *
+     * @return a clean Ansi instance, to continue chaining output.
      */
     public Ansi errln() {
         return writeToPrintStream(stderr, true, "");
