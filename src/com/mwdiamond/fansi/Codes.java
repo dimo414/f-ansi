@@ -57,6 +57,7 @@ class Codes {
     private static String SEPARATOR = ";";
     private static Joiner SEPARATOR_JOINER = Joiner.on(SEPARATOR);
 
+    // Known implementations
     public static final Codes REAL = new Codes(ESC_REAL, BELL_REAL);
     public static final Codes RAW = new Codes(ESC_RAW, BELL_RAW);
 
@@ -226,6 +227,8 @@ class Codes {
         }
 
         ColorType(int color) {
+            checkArgument(color >= 0 && color <= 255,
+                "Must specify a color index within the range [0, 255], was: %s", color);
             colorIndex = color;
         }
 
