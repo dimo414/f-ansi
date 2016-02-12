@@ -51,6 +51,7 @@
         <delete dir="${core.bin}"/>
         <delete dir="${test.bin}"/>
         <delete dir="test-output"/>
+        <delete dir="${dist}"/>
     </target>
 
     <!-- Compile -->
@@ -100,5 +101,25 @@
             <fileset dir="${demo.bin}"/>
             <zipfileset excludes="META-INF/*.SF" src="${dist}/f-ansi-no-dependencies.jar"/>
         </jar>
+    </target>
+
+    <!-- Javadocs -->
+    <!-- TODO resolve doc warnings -->
+    <target name="docs" depends="build" description="Generate API documentation">
+        <javadoc
+         sourcepath="${core.src}"
+         destdir="${dist}/docs"
+         author="true"
+         version="true"
+         use="true"
+         failonerror="true"
+         windowtitle="F-ANSI API documentation">
+            <header>Colored Console Output Library for Java</header>
+            <footer>Colored Output in Java</footer>
+            <bottom><![CDATA[<i>Copyright &#169; 2016 Michael Diamond.</i>]]></bottom>
+            <link href="http://docs.oracle.com/javase/8/docs/api/"/>
+            <!--TODO <link offline="true" href="http://docs.oracle.com/javase/8/docs/api/" packagelistLoc="???"/>-->
+            <classpath refid="core.classpath"/>
+        </javadoc>
     </target>
 </project>
