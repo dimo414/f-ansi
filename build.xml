@@ -118,7 +118,6 @@
             <footer>Colored Output in Java</footer>
             <bottom><![CDATA[<i>Copyright &#169; 2016 Michael Diamond.</i>]]></bottom>
             <link href="http://docs.oracle.com/javase/8/docs/api/"/>
-            <!--TODO <link offline="true" href="http://docs.oracle.com/javase/8/docs/api/" packagelistLoc="???"/>-->
             <classpath refid="core.classpath"/>
         </javadoc>
     </target>
