@@ -85,7 +85,7 @@
     </target>
 
     <!-- Jar -->
-    <target name="dist" depends="build" description="Build distribution Jars">
+    <target name="jars" depends="build" description="Build distribution Jars">
         <jar destfile="${dist}/f-ansi.jar">
             <fileset dir="${core.bin}"/>
         </jar>
@@ -121,4 +121,6 @@
             <classpath refid="core.classpath"/>
         </javadoc>
     </target>
+
+    <target name="dist" depends="clean, test, jars, docs" description="Generate a distribution" />
 </project>
