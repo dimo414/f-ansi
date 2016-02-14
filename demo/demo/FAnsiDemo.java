@@ -26,6 +26,8 @@ public class FAnsiDemo {
         }
         ansi().outln();
 
+        ansi().outln().style(Style.UNDERLINE, Style.BOLD, Style.BLINK).outln("Multiple styles");
+
         ansi().outln();
         for (Font f : Font.values()) {
             ansi().font(f).out("%s", f).out(" ");
