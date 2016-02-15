@@ -40,7 +40,7 @@ class Codes {
     private static final String CUB = "D";
     private static final String CNL = "E";
     private static final String CPL = "F";
-    @SuppressWarnings("unused") private static final String CHA = "G";
+    private static final String CHA = "G";
     private static final String CUP = "H";
     private static final String ED = "J";
     private static final String EL = "K";
@@ -103,6 +103,11 @@ class Codes {
     public String upLine(int n) {
         checkArgument(n > 0, "Must specify a positive number of lines, was %s", n);
         return csi + n + CPL;
+    }
+
+    public String positionCursor(int column) {
+        checkArgument(column > 0, "Must specify a positive column, was %s", column);
+        return csi + column + CHA;
     }
 
     public String positionCursor(int row, int column) {
