@@ -28,6 +28,15 @@ you can call `demo.ColorTable`:
 
 ![ANSI Color Table](/images/ColorTable.png)
 
+## Dependencies
+
+F-ANSI depends on [Guava](https://github.com/google/guava). The tests further
+depend on [TestNG](testng.org/) and [Truth](https://github.com/google/truth).
+
+For conveinence the `f-ansi-no-dependencies.jar` bundles in Guava, at the cost
+of a much larger Jar. If you already have Guava on your classpath, the
+`f-ansi.jar` is much smaller.
+
 ## Copyright
 
 Copyright 2016 Michael Diamond
