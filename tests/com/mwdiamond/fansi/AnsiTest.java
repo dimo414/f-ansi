@@ -170,10 +170,10 @@ public class AnsiTest {
     }
 
     @Test
-    @ChangeDetector(timesUpdated = 0)
+    @ChangeDetector(timesUpdated = 1)
     public void overwriteThisLine() {
         ansi().overwriteThisLine().out(helloWorld);
-        assertThat(ansiForTests.getStdout()).isEqualTo("\\e[2K" + helloWorld);
+        assertThat(ansiForTests.getStdout()).isEqualTo("\\e[2K\\e[1G" + helloWorld);
     }
 
     @Test

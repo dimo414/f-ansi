@@ -582,7 +582,7 @@ public class Ansi {
      * @return This Ansi instance, to continue modifying the output.
      */
     public Ansi overwriteThisLine() {
-        prepend(codes.clearLine());
+        prepend(codes.clearLine(), codes.positionCursor(1));
         return this;
     }
 
