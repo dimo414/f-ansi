@@ -15,19 +15,20 @@
     <!-- Classpaths -->
     <path id="core.classpath">
         <pathelement location="${core.bin}"/>
-        <pathelement location="lib/guava-18.0.jar"/>
+        <pathelement location="lib/guava-18.0.jar"/> <!-- Apache 2.0 -->
     </path>
     <path id="demo.classpath">
         <pathelement location="${demo.bin}"/>
     </path>
     <path id="test.classpath">
         <pathelement location="${test.bin}"/>
-        <pathelement location="lib/testng-6.9.4.jar"/>
-        <pathelement location="lib/truth-0.28.jar"/>
+        <pathelement location="lib/testng-6.9.4.jar"/> <!-- Apache 2.0 -->
+        <pathelement location="lib/truth-0.28.jar"/> <!-- Apache 2.0 -->
     </path>
-    <path id="runtime.classpath">
+    <path id="runtime.classpath"> <!-- used by dependencies, but not by this project -->
         <pathelement location="lib/runtime/jcommander-1.48.jar"/>
         <pathelement location="lib/runtime/snakeyaml-1.14.jar"/>
+        <pathelement location="lib/runtime/junit-4.12.jar"/>
     </path>
 
     <!-- Setup -->
