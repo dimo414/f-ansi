@@ -132,6 +132,28 @@ public class AnsiTest {
 
     @Test
     @ChangeDetector(timesUpdated = 0)
+    public void moveCursor() {
+        ansi().moveCursor(10).out(helloWorld);
+        assertThat(ansiForTests.getStdout()).isEqualTo("\\e[10E" + helloWorld);
+    }
+
+    @Test
+    @ChangeDetector(timesUpdated = 0)
+    public void moveCursorColumns() {
+        ansi().moveCursor(10, 10).out(helloWorld);
+        assertThat(ansiForTests.getStdout()).isEqualTo("\\e[10B\\e[10C" + helloWorld);
+    }
+
+    @Test
+    @ChangeDetector(timesUpdated = 0)
+    public void saveRestoreCursor() {
+        ansi().saveCursor();
+        ansi().restoreCursor();
+        assertThat(ansiForTests.getStdout()).isEqualTo("\\e[s\\e[u");
+    }
+
+    @Test
+    @ChangeDetector(timesUpdated = 0)
     public void fixed() {
         ansi().fixed(10, 20).out(helloWorld);
         assertThat(ansiForTests.getStdout()).isEqualTo("\\e[s\\e[10;20H" + helloWorld + "\\e[u");
