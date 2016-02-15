@@ -46,6 +46,7 @@ import com.mwdiamond.fansi.Codes.ColorType;
  * <p>does not render "World" in red text, only a green background.
  */
 public class Ansi {
+    private static final long DEFAULT_DELAY = 100;
     // Might make this dynamic in the future, based on the startup environment
     // E.g. check if System.console() returns null
     private static final Codes DEFAULT_CODES = Codes.REAL;
@@ -505,14 +506,12 @@ public class Ansi {
 
     /**
      * Repositions the cursor up or down a number of lines. Negative values
-     * move the cursor up, positive values move it down. Saves the cursor
-     * position so it can be restored with <code>restoreCursor()</code>.
+     * move the cursor up, positive values move it down.
      *
      * @param lines a number of lines to move the cursor from its current position.
      * @return This Ansi instance, to continue modifying the output.
      */
     public Ansi moveCursor(int lines) {
-        prepend(codes.saveCursor());
         if (lines < 0) {
             prepend(codes.upLine(0 - lines));
         } else {
@@ -524,16 +523,42 @@ public class Ansi {
     /**
      * Move the cursor up or down a number of lines and left or right a number
      * of columns. Negative values are up/left, positive values are down/right.
-     * Saves the cursor position so it can be restored with
-     * <code>restoreCursor()</code>.
      *
      * @param lines a number of lines to move the cursor from its current position.
      * @param columns a number of columns to move the cursor from its current position.
      * @return This Ansi instance, to continue modifying the output.
      */
     public Ansi moveCursor(int lines, int columns) {
-        prepend(codes.saveCursor(), codes.moveCursor(lines, columns));
+        prepend(codes.moveCursor(lines, columns));
         return this;
+    }
+
+    /**
+     * Saves the current position of the cursor. Use <code>restoreCursor</code>
+     * to move the cursor back to this position.
+     *
+     * This is <em>not</em> a chainable method, to avoid erroneously calling
+     * <code>ansi().restoreCursor();</code> without writing. The restore-cursor
+     * code is written to stdout immediately.
+     */
+    public void saveCursor() {
+        checkState(preBuffer.isEmpty() && postBuffer.isEmpty(), "Unnecessary chaining; cannot set additional formatting on the window title.");
+        prepend(codes.saveCursor());
+        out("");
+    }
+
+    /**
+     * Restores the cursor to its previously saved position; use in tandem with
+     * <code>saveCursor</code>.
+     *
+     * This is <em>not</em> a chainable method, to avoid erroneously calling
+     * <code>ansi().restoreCursor();</code> without writing. The restore-cursor
+     * code is written to stdout immediately.
+     */
+    public void restoreCursor() {
+        checkState(preBuffer.isEmpty() && postBuffer.isEmpty(), "Unnecessary chaining; cannot set additional formatting on the window title.");
+        prepend(codes.restoreCursor());
+        out("");
     }
 
     /**
@@ -551,17 +576,6 @@ public class Ansi {
     }
 
     /**
-     * Restores the cursor to its previously saved position; use in tandem with
-     * <code>moveCursor</code>.
-     *
-     * @return This Ansi instance, to continue modifying the output.
-     */
-    public Ansi restoreCursor() {
-        prepend(codes.restoreCursor());
-        return this;
-    }
-
-    /**
      * Clears the current line and positions the cursor at the start of the
      * line.
      *
@@ -575,6 +589,10 @@ public class Ansi {
     /**
      * Clears the current and previous lines and positions the cursor at the
      * start of the previous line.
+     * 
+     * <p>As of February 2016 this
+     * <a href="https://gitlab.com/gnachman/iterm2/issues/3617">does not work on iTerm2 stable</a>,
+     * you must install the beta.
      *
      * @return This Ansi instance, to continue modifying the output.
      */
@@ -684,5 +702,37 @@ public class Ansi {
      */
     public Ansi errln() {
         return writeToPrintStream(stderr, true, "");
+    }
+
+    /**
+     * Helper method to delay output for a short period of time, so users can
+     * see the output changing. Useful when overwriting previous lines.
+     *
+     * <p>Note this calls <code>Thread.sleep()</code>.
+     *
+     * @return This Ansi instance, to continue modifying the output.
+     */
+    public Ansi delay() {
+        return delay(DEFAULT_DELAY);
+    }
+
+    /**
+     * Helper method to delay output for a short period of time, so users can
+     * see the output changing. Useful when overwriting previous lines.
+     *
+     * <p>Note this calls <code>Thread.sleep()</code>.
+     *
+     * @param millis a number of milliseconds to delay output.
+     * @return This Ansi instance, to continue modifying the output.
+     */
+    public Ansi delay(long millis) {
+        try {
+            // TODO make this mock-able via AnsiForTests
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            // Restore threads interrupted state, the application should handle the interruption
+            Thread.currentThread().interrupt();
+        }
+        return this;
     }
 }
