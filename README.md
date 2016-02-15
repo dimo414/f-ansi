@@ -15,10 +15,18 @@ abstraction to create elegant applications without the hassle.
 **In Alpha**: F-ANSI is still in active development, and the API may change.
 
 F-ANSI's fluent interface allows you to compose readable chains of output; the
-following example prints "Hello" in red, followed by a hyphen in the terminal's
-default styling, folowed by "World" in green.
+following example prints "Foo" in red, followed by a hyphen in the terminal's
+default styling, folowed by "Bar" in green.
 
-    ansi().color(RED).out("Hello").out(" - ").color(LIGHT_GREEN).outln("World");
+    ansi().color(RED).out("Foo").out(" - ").color(LIGHT_GREEN).outln("Bar");
+
+![Colored 'Foo - Bar'](/images/FooBar.png)
+
+There are several demo scripts in the [demo](/demo/demo) directory you can use
+for reference and testing. To print a color table of the default ANSI colors,
+you can call `demo.ColorTable`:
+
+![ANSI Color Table](/images/ColorTable.png)
 
 ## Copyright
 
