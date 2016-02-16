@@ -22,203 +22,59 @@ import com.mwdiamond.fansi.Ansi.Style;
  * This class has no state, and is therefore thread-safe.
  * Subclasses should similarly avoid introducing any state.
  */
-class Codes {
-    // Escapes
-    private static final String ESC_REAL = "\u001B";
-    private static final String BELL_REAL = "\u0007";
-    private static final String ESC_RAW = "\\e";
-    private static final String BELL_RAW = "\\a";
-    private static final String TITLE_ESCAPE = "]0;";
-    private static final String BEGIN_NON_PRINTING = "\\[";
-    private static final String END_NON_PRINTING = "\\]";
-
-    // CSI
-    private static final String CSI_CHAR = "[";
-    private static final String CUU = "A";
-    private static final String CUD = "B";
-    private static final String CUF = "C";
-    private static final String CUB = "D";
-    private static final String CNL = "E";
-    private static final String CPL = "F";
-    private static final String CHA = "G";
-    private static final String CUP = "H";
-    private static final String ED = "J";
-    private static final String EL = "K";
-    private static final String SU = "S";
-    private static final String SD = "T";
-    @SuppressWarnings("unused") private static final String HVP = "f";
-    private static final String SGR = "m";
-    private static final String DSR = "6n";
-    private static final String SCP = "s";
-    private static final String RCP = "u";
-    private static final String DECTCEM_HIDE = "?25l";
-    private static final String DECTCEM_SHOW = "?25h";
-
-    private static String SEPARATOR = ";";
-    private static Joiner SEPARATOR_JOINER = Joiner.on(SEPARATOR);
+interface Codes {
 
     // Known implementations
-    public static final Codes REAL = new Codes(ESC_REAL, BELL_REAL);
-    public static final Codes RAW = new Codes(ESC_RAW, BELL_RAW);
+    public static final Codes REAL = AnsiCodes.real();
+    public static final Codes RAW = AnsiCodes.raw();
+    public static final Codes NO_OP = new NoOpCodes();
 
-    private final String esc;
-    private final String bell;
-    private final String csi;
+    String title(String text);
 
-    private Codes(String esc, String bell) {
-        this.esc = esc;
-        this.bell = bell;
-        this.csi = esc + CSI_CHAR;
-    }
+    // TODO unused?
+    String promptQuote(String text);
 
-    // http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/xterm-title-bar-manipulations.html
-    public String title(String text) {
-        return esc + TITLE_ESCAPE + text + bell;
-    }
+    String moveCursor(int lines, int columns);
 
-    public String promptQuote(String text) {
-        return BEGIN_NON_PRINTING + text + END_NON_PRINTING;
-    }
+    String downLine(int n);
 
-    public String moveCursor(int lines, int columns) {
-        StringBuilder buffer = new StringBuilder();
-        if(lines > 0) {
-            buffer.append(csi).append(lines).append(CUD);
-        } else if (lines < 0) {
-            buffer.append(csi).append(0 - lines).append(CUU);
-        }
-        if (columns > 0) {
-            buffer.append(csi).append(columns).append(CUF);
-        } else if (columns < 0) {
-            buffer.append(csi).append(0 - columns).append(CUB);
-        }
-        return buffer.toString();
-    }
+    String upLine(int n);
 
-    public String downLine(int n) {
-        checkArgument(n > 0, "Must specify a positive number of lines, was %s", n);
-        return csi + n + CNL;
-    }
+    String positionCursor(int column);
 
-    public String upLine(int n) {
-        checkArgument(n > 0, "Must specify a positive number of lines, was %s", n);
-        return csi + n + CPL;
-    }
+    String positionCursor(int row, int column);
 
-    public String positionCursor(int column) {
-        checkArgument(column > 0, "Must specify a positive column, was %s", column);
-        return csi + column + CHA;
-    }
+    String clearDisplay();
 
-    public String positionCursor(int row, int column) {
-        checkArgument(row > 0, "Must specify a positive row, was %s", row);
-        checkArgument(column > 0, "Must specify a positive column, was %s", column);
-        return csi + row + ";" + column + CUP;
-    }
+    String clearDisplayForward();
 
-    public String clearDisplay() {
-        return csi + 2 + ED;
-    }
+    String clearDisplayBackward();
 
-    public String clearDisplayForward() {
-        return csi + 0 + ED;
-    }
+    String clearLine();
 
-    public String clearDisplayBackward() {
-        return csi + 1 + ED;
-    }
+    String clearLineForward();
 
-    public String clearLine() {
-        return csi + 2 + EL;
-    }
+    String clearLineBackward();
 
-    public String clearLineForward() {
-        return csi + 0 + EL;
-    }
+    String scrollUp(int n);
 
-    public String clearLineBackward() {
-        return csi + 1 + EL;
-    }
+    String scrollDown(int n);
 
-    public String scrollUp(int n) {
-        checkArgument(n > 0, "Must specify a positive number of lines, was %s", n);
-        return csi + n + SU;
-    }
+    String color(ColorType color, ColorType background, Font font, Style ... styles);
 
-    public String scrollDown(int n) {
-        checkArgument(n > 0, "Must specify a positive number of lines, was %s", n);
-        return csi + n + SD;
-    }
+    String clearFont();
 
-    private List<Object> getColorCodeParts(ColorType color) {
-        if (color.namedColor() != null) {
-            return ImmutableList.<Object>of(color.namedColor().color());
-        } else if (color.colorIndex() != null) {
-            return Color.extended(color.colorIndex(), false);
-        } else if (color.javaColor() != null) {
-            return Color.extended(color.javaColor(), false);
-        }
-        throw new IllegalArgumentException("Unexected ColorType, " + color);
-    }
+    String clear();
 
-    private List<Object> getBackgroundCodeParts(ColorType color) {
-        if (color.namedColor() != null) {
-            return ImmutableList.<Object>of(color.namedColor().background());
-        } else if (color.colorIndex() != null) {
-            return Color.extended(color.colorIndex(), true);
-        } else if (color.javaColor() != null) {
-            return Color.extended(color.javaColor(), true);
-        }
-        throw new IllegalArgumentException("Unexected ColorType, " + color);
-    }
+    String getCursor();
 
-    public String color(ColorType color, ColorType background, Font font, Style ... styles) {
-        List<Object> parts = new ArrayList<>();
-        for (Style s : styles) {
-            parts.add(s.code());
-        }
-        if (font != Font.DEFAULT) {
-            parts.add(font.code());
-        }
-        if (color.namedColor() != Color.DEFAULT) {
-            parts.addAll(getColorCodeParts(color));
-        }
-        if (background.namedColor() != Color.DEFAULT) {
-            parts.addAll(getBackgroundCodeParts(background));
-        }
-        if(parts.isEmpty()) {
-            return "";
-        }
-        return SEPARATOR_JOINER.appendTo(new StringBuilder(csi), parts).append(SGR).toString();
-    }
+    String saveCursor();
 
-    public String clearFont() {
-        return csi + Font.DEFAULT.code() + SGR;
-    }
+    String restoreCursor();
 
-    public String clear() {
-        return csi + SGR;
-    }
+    String hideCursor();
 
-    public String getCursor() {
-        return csi + DSR;
-    }
-
-    public String saveCursor() {
-        return csi + SCP;
-    }
-
-    public String restoreCursor() {
-        return csi + RCP;
-    }
-
-    public String hideCursor() {
-        return csi + DECTCEM_HIDE;
-    }
-
-    public String showCursor() {
-        return csi + DECTCEM_SHOW;
-    }
+    String showCursor();
 
     static class ColorType {
         static ColorType DEFAULT = new ColorType(Color.DEFAULT);
@@ -252,5 +108,350 @@ class Codes {
         java.awt.Color javaColor() {
             return javaColor;
         }
+
+        List<Object> getColorCodeParts() {
+            if (namedColor() != null) {
+                return ImmutableList.<Object>of(namedColor().color());
+            } else if (colorIndex() != null) {
+                return Color.extended(colorIndex(), false);
+            } else if (javaColor() != null) {
+                return Color.extended(javaColor(), false);
+            }
+            throw new IllegalArgumentException("Unexected ColorType, " + this);
+        }
+
+        List<Object> getBackgroundCodeParts() {
+            if (namedColor() != null) {
+                return ImmutableList.<Object>of(namedColor().background());
+            } else if (colorIndex() != null) {
+                return Color.extended(colorIndex(), true);
+            } else if (javaColor() != null) {
+                return Color.extended(javaColor(), true);
+            }
+            throw new IllegalArgumentException("Unexected ColorType, " + this);
+        }
+    }
+
+    static class AnsiCodes implements Codes {
+        // Escapes
+        private static final String ESC_REAL = "\u001B";
+        private static final String BELL_REAL = "\u0007";
+        private static final String ESC_RAW = "\\e";
+        private static final String BELL_RAW = "\\a";
+        private static final String TITLE_ESCAPE = "]0;";
+        private static final String BEGIN_NON_PRINTING = "\\[";
+        private static final String END_NON_PRINTING = "\\]";
+
+        // CSI
+        private static final String CSI_CHAR = "[";
+        private static final String CUU = "A";
+        private static final String CUD = "B";
+        private static final String CUF = "C";
+        private static final String CUB = "D";
+        private static final String CNL = "E";
+        private static final String CPL = "F";
+        private static final String CHA = "G";
+        private static final String CUP = "H";
+        private static final String ED = "J";
+        private static final String EL = "K";
+        private static final String SU = "S";
+        private static final String SD = "T";
+        @SuppressWarnings("unused") private static final String HVP = "f";
+        private static final String SGR = "m";
+        private static final String DSR = "6n";
+        private static final String SCP = "s";
+        private static final String RCP = "u";
+        private static final String DECTCEM_HIDE = "?25l";
+        private static final String DECTCEM_SHOW = "?25h";
+
+        private static String SEPARATOR = ";";
+        private static Joiner SEPARATOR_JOINER = Joiner.on(SEPARATOR);
+
+        private final String esc;
+        private final String bell;
+        private final String csi;
+
+        private AnsiCodes(String esc, String bell) {
+            this.esc = esc;
+            this.bell = bell;
+            this.csi = esc + CSI_CHAR;
+        }
+
+        public static AnsiCodes real() {
+            return new AnsiCodes(ESC_REAL, BELL_REAL);
+        }
+
+        public static AnsiCodes raw() {
+            return new AnsiCodes(ESC_RAW, BELL_RAW);
+        }
+
+        // http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/xterm-title-bar-manipulations.html
+        @Override
+        public String title(String text) {
+            return esc + TITLE_ESCAPE + text + bell;
+        }
+
+        @Override
+        public String promptQuote(String text) {
+            return BEGIN_NON_PRINTING + text + END_NON_PRINTING;
+        }
+
+        @Override
+        public String moveCursor(int lines, int columns) {
+            StringBuilder buffer = new StringBuilder();
+            if(lines > 0) {
+                buffer.append(csi).append(lines).append(CUD);
+            } else if (lines < 0) {
+                buffer.append(csi).append(0 - lines).append(CUU);
+            }
+            if (columns > 0) {
+                buffer.append(csi).append(columns).append(CUF);
+            } else if (columns < 0) {
+                buffer.append(csi).append(0 - columns).append(CUB);
+            }
+            return buffer.toString();
+        }
+
+        @Override
+        public String downLine(int n) {
+            checkArgument(n > 0, "Must specify a positive number of lines, was %s", n);
+            return csi + n + CNL;
+        }
+
+        @Override
+        public String upLine(int n) {
+            checkArgument(n > 0, "Must specify a positive number of lines, was %s", n);
+            return csi + n + CPL;
+        }
+
+        @Override
+        public String positionCursor(int column) {
+            checkArgument(column > 0, "Must specify a positive column, was %s", column);
+            return csi + column + CHA;
+        }
+
+        @Override
+        public String positionCursor(int row, int column) {
+            checkArgument(row > 0, "Must specify a positive row, was %s", row);
+            checkArgument(column > 0, "Must specify a positive column, was %s", column);
+            return csi + row + ";" + column + CUP;
+        }
+
+        @Override
+        public String clearDisplay() {
+            return csi + 2 + ED;
+        }
+
+        @Override
+        public String clearDisplayForward() {
+            return csi + 0 + ED;
+        }
+
+        @Override
+        public String clearDisplayBackward() {
+            return csi + 1 + ED;
+        }
+
+        @Override
+        public String clearLine() {
+            return csi + 2 + EL;
+        }
+
+        @Override
+        public String clearLineForward() {
+            return csi + 0 + EL;
+        }
+
+        @Override
+        public String clearLineBackward() {
+            return csi + 1 + EL;
+        }
+
+        @Override
+        public String scrollUp(int n) {
+            checkArgument(n > 0, "Must specify a positive number of lines, was %s", n);
+            return csi + n + SU;
+        }
+
+        @Override
+        public String scrollDown(int n) {
+            checkArgument(n > 0, "Must specify a positive number of lines, was %s", n);
+            return csi + n + SD;
+        }
+
+        @Override
+        public String color(ColorType color, ColorType background, Font font, Style ... styles) {
+            List<Object> parts = new ArrayList<>();
+            for (Style s : styles) {
+                parts.add(s.code());
+            }
+            if (font != Font.DEFAULT) {
+                parts.add(font.code());
+            }
+            if (color.namedColor() != Color.DEFAULT) {
+                parts.addAll(color.getColorCodeParts());
+            }
+            if (background.namedColor() != Color.DEFAULT) {
+                parts.addAll(background.getBackgroundCodeParts());
+            }
+            if(parts.isEmpty()) {
+                return "";
+            }
+            return SEPARATOR_JOINER.appendTo(new StringBuilder(csi), parts).append(SGR).toString();
+        }
+
+        @Override
+        public String clearFont() {
+            return csi + Font.DEFAULT.code() + SGR;
+        }
+
+        @Override
+        public String clear() {
+            return csi + SGR;
+        }
+
+        @Override
+        public String getCursor() {
+            return csi + DSR;
+        }
+
+        @Override
+        public String saveCursor() {
+            return csi + SCP;
+        }
+
+        @Override
+        public String restoreCursor() {
+            return csi + RCP;
+        }
+
+        @Override
+        public String hideCursor() {
+            return csi + DECTCEM_HIDE;
+        }
+
+        @Override
+        public String showCursor() {
+            return csi + DECTCEM_SHOW;
+        }
+    }
+
+    static class NoOpCodes implements Codes {
+
+        @Override
+        public String title(String text) {
+            return "";
+        }
+
+        @Override
+        public String promptQuote(String text) {
+            return "";
+        }
+
+        @Override
+        public String moveCursor(int lines, int columns) {
+            return "";
+        }
+
+        @Override
+        public String downLine(int n) {
+            return "";
+        }
+
+        @Override
+        public String upLine(int n) {
+            return "";
+        }
+
+        @Override
+        public String positionCursor(int column) {
+            return "";
+        }
+
+        @Override
+        public String positionCursor(int row, int column) {
+            return "";
+        }
+
+        @Override
+        public String clearDisplay() {
+            return "";
+        }
+
+        @Override
+        public String clearDisplayForward() {
+            return "";
+        }
+
+        @Override
+        public String clearDisplayBackward() {
+            return "";
+        }
+
+        @Override
+        public String clearLine() {
+            return "";
+        }
+
+        @Override
+        public String clearLineForward() {
+            return "";
+        }
+
+        @Override
+        public String clearLineBackward() {
+            return "";
+        }
+
+        @Override
+        public String scrollUp(int n) {
+            return "";
+        }
+
+        @Override
+        public String scrollDown(int n) {
+            return "";
+        }
+
+        @Override
+        public String color(ColorType color, ColorType background, Font font, Style... styles) {
+            return "";
+        }
+
+        @Override
+        public String clearFont() {
+            return "";
+        }
+
+        @Override
+        public String clear() {
+            return "";
+        }
+
+        @Override
+        public String getCursor() {
+            return "";
+        }
+
+        @Override
+        public String saveCursor() {
+            return "";
+        }
+
+        @Override
+        public String restoreCursor() {
+            return "";
+        }
+
+        @Override
+        public String hideCursor() {
+            return "";
+        }
+
+        @Override
+        public String showCursor() {
+            return "";
+        }
+        
     }
 }
