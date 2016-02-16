@@ -61,6 +61,11 @@ public class Ansi {
      * @return an Ansi instance wrapping System.out and System.err.
      */
     public static Ansi ansi() {
+        // TODO read a Java property to determine the type of Ansi instance to return.
+        // Property real: real
+        // Property raw: raw
+        // Property none: none
+        // Property console: real if console, none if null
         return new Ansi(DEFAULT_CODES);
     }
 
@@ -83,6 +88,17 @@ public class Ansi {
      */
     public static Ansi rawAnsi() {
         return new Ansi(Codes.RAW);
+    }
+
+    /**
+     * An instance of Ansi that doesn't output any escape codes.
+     * No need to be public, there's little reason for a caller to manually ask
+     * for a no-op Ansi; they could just print directly to stdout or stderr.
+     *
+     * @return an Ansi instance wrapping System.out and System.err.
+     */
+    static Ansi noOpAnsi() {
+        return new Ansi(Codes.NO_OP);
     }
 
     /**
@@ -142,6 +158,9 @@ public class Ansi {
 
     // TODO implement
     // public static int toColorIndex(java.awt.Color color)
+    // 0x00-0x0F:  Native colors, unspecified and not provided here
+    // 0x10-0xE7:  6 × 6 × 6 = 216 colors: 16 + 36 × r + 6 × g + b (0 ≤ r, g, b ≤ 5)
+    // 0xE8-0xFF:  grayscale from black to white in 24 steps
 
     /**
      * Fonts defined by the ANSI standard.

@@ -2,11 +2,9 @@ package demo;
 
 import static com.mwdiamond.fansi.Ansi.ansi;
 
-import java.io.IOException;
-
 public class CursorActions {
     private static final int LINES = 10;
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) {
         clearLines();
 
         ansi().saveCursor();

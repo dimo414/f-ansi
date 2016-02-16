@@ -16,7 +16,7 @@ import java.io.PrintStream;
  * matches, as these could easily break in future versions. Consider
  * instead looking for patterns, such as <code>.*Foobar.*\n</code>.
  */
-public class AnsiForTests {
+public class AnsiForTests implements AnsiFactory {
     private final ByteArrayOutputStream stdoutSink = new ByteArrayOutputStream();
     private final ByteArrayOutputStream stderrSink = new ByteArrayOutputStream();
     private final PrintStream stdout = new PrintStream(stdoutSink);
@@ -37,6 +37,7 @@ public class AnsiForTests {
      *
      * @return a mock Ansi instance.
      */
+    @Override
     public Ansi ansi() {
         return new Ansi(stdout, stderr, codes);
     }
