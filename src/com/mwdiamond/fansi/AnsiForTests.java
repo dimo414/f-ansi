@@ -8,12 +8,14 @@ import java.io.PrintStream;
 /**
  * Mechanism for writing ANSI codes to strings for testing, rather than
  * stdout and stderr. Use this class to write unit and functional tests
- * involving Ansi. Most users should not need this class, unless you're testing
- * calls to System.out / System.err.
+ * involving {@link Ansi}. Most users should not need this class, unless you're
+ * testing calls to System.out / System.err. You might want to use
+ * {@link AnsiFactory#NO_OP} instead if you care about your program's output,
+ * not this library's.
  *
- * <p>Note that the exact outputs of Ansi are not guaranteed to be stable.
- * Avoid writing change-detector style tests that look for exact string
- * matches, as these could easily break in future versions. Consider
+ * <p>Note that the exact outputs of {@code Ansi} is not guaranteed to be
+ * stable. Avoid writing change-detector style tests that look for exact
+ * string matches, as these could easily break in future versions. Consider
  * instead looking for patterns, such as <code>.*Foobar.*\n</code>.
  */
 public class AnsiForTests implements AnsiFactory {
@@ -24,7 +26,7 @@ public class AnsiForTests implements AnsiFactory {
     private final Codes codes;
 
     public AnsiForTests() {
-        this(Codes.REAL);
+        this(Codes.RAW);
     }
 
     AnsiForTests(Codes codes) {
@@ -32,8 +34,8 @@ public class AnsiForTests implements AnsiFactory {
     }
 
     /**
-     * Get an Ansi instance associated with the stdout and stderr used by this
-     * AnsiForTests instance.
+     * Construct an {@code Ansi} instance associated with the stdout and stderr
+     * used by this {@code AnsiForTests} instance.
      *
      * @return a mock Ansi instance.
      */
