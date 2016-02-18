@@ -8,6 +8,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.primitives.Ints;
 import com.mwdiamond.fansi.Codes.ColorType;
 
 /**
@@ -24,11 +26,7 @@ import com.mwdiamond.fansi.Codes.ColorType;
  * named colors, support for the more versatile color indexes and 24-bit
  * full-color is less consistent. Cursor movement support is similarly
  * limited on certain terminals. Be sure to test the behavior you expect
- * on any terminals you intend to support. <!--TODO verify:
- * You can often fallback gracefully by preceding your desired behavior
- * with a backup, like so:
- * 
- * <pre><code>ansi().color(RED).color(100).out("Orange, or Red if not supported");</code></pre>-->
+ * on any terminals you intend to support.
  *
  * <p>Ansi instances are stateful, and are not intended to be persisted,
  * assigned to variables, or used across threads. Instead, chain off the
@@ -156,11 +154,42 @@ public class Ansi {
         }
     }
 
-    // TODO implement
-    // public static int toColorIndex(java.awt.Color color)
-    // 0x00-0x0F:  Native colors, unspecified and not provided here
-    // 0x10-0xE7:  6 × 6 × 6 = 216 colors: 16 + 36 × r + 6 × g + b (0 ≤ r, g, b ≤ 5)
-    // 0xE8-0xFF:  grayscale from black to white in 24 steps
+    /**
+     * Maps a Java Color to a reasonably close color index, for terminals that
+     * don't support full colors.
+     *
+     * @param color A Java color.
+     * @return an approximately equivalent color index.
+     */
+    // http://stackoverflow.com/a/27165165/113632
+    public static int toColorIndex(java.awt.Color color) {
+        // 0x00-0x0F:  Native colors, unspecified and not provided here
+
+        // 0x10-0xE7:  6 × 6 × 6 = 216 colors: 16 + 36 × r + 6 × g + b (0 ≤ r, g, b ≤ 5)
+        int[] indicies = {toCode(color.getRed()), toCode(color.getGreen()), toCode(color.getBlue())};
+        if (ImmutableSet.copyOf(Ints.asList(indicies)).size() > 1) {
+            // If all indicies map to the same value, we'd return one of six
+            // greys in the color section. We can do better by using the
+            // greyscale section.
+            return 0x10 + 0x24 * indicies[0] + 0x06 * indicies[1] + indicies[2];
+        }
+
+        // 0xE8-0xFF:  grayscale from black to white in 24 steps
+        // Averaging probably isn't ideal for colors, but it's good enough;
+        // R, G, and B should be fairly close to each other.
+        int average = (color.getRed() + color.getGreen() + color.getBlue()) / 3;
+        int greycode = (average - 0x08) / 0x0A;
+        if (greycode <= 0) {
+            return 0x10; // black
+        } else if (greycode > 23) {
+            return 0xE7; // white
+        }
+        return 0xE8 + greycode;
+    }
+
+    private static int toCode(int component) {
+        return Math.max(0, (component - 55) / 40);
+    }
 
     /**
      * Fonts defined by the ANSI standard.
