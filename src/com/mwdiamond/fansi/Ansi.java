@@ -17,7 +17,7 @@ import com.mwdiamond.fansi.Codes.ColorType;
  * additional console functionality via
  * <a href="https://en.wikipedia.org/wiki/ANSI_escape_code">ANSI escape codes</a>,
  * such as colored output and cursor repositioning. Generally you should use
- * the <code>ansi()</code> method to obtain an instance of this class, which
+ * the {@link #ansi} method to obtain an instance of this class, which
  * will dynamically determine the appropriate syntax to use for the current
  * environment.
  *
@@ -30,7 +30,7 @@ import com.mwdiamond.fansi.Codes.ColorType;
  *
  * <p>Ansi instances are stateful, and are not intended to be persisted,
  * assigned to variables, or used across threads. Instead, chain off the
- * <code>ansi()</code> method directly to compose the behavior you need in a
+ * {@code ansi()} method directly to compose the behavior you need in a
  * fluent style.
  *
  * <p>Note that the "terminating" output methods (out, outln, err, errln) return
@@ -39,7 +39,7 @@ import com.mwdiamond.fansi.Codes.ColorType;
  *
  * <p>For example:
  *
- * <pre><code>ansi().color(RED).out("Hello ").background(GREEN).out("World");</code></pre>
+ * <pre>ansi().color(RED).out("Hello ").background(GREEN).out("World");</pre>
  *
  * <p>does not render "World" in red text, only a green background.
  */
@@ -68,15 +68,15 @@ public class Ansi {
         case "CONSOLE":
             systemCodes = System.console() != null ? Codes.REAL : Codes.NO_OP;
             break;
-        // TODO add stdout/stderr TTY detection somehow
         default:
             throw new IllegalStateException("Invalid value " + codesProperty + " for property " + ANSI_PROPERTY);
         }
     }
 
     /**
-     * An instance of Ansi configured for the current environment. Generally
-     * you should use this method to obtain an Ansi instance.
+     * Constructs a new {@code Ansi} instance configured for the current
+     * environment. Generally you should use this method to obtain an
+     * {@code Ansi} instance.
      *
      * <p>Consider importing this method statically:
      * <code>import static com.mwdiamond.fansi.Ansi.ansi;</code>
@@ -88,12 +88,12 @@ public class Ansi {
      *
      * <ul>
      *   <li><strong>REAL</strong>: the default, makes this method behave like
-     *   <code>realAnsi()</code>.</li>
+     *   {@link #realAnsi}.</li>
      *   <li><strong>RAW</strong>: makes this method behave like
-     *   <code>rawAnsi()</code>.</li>
+     *   {@link #rawAnsi}.</li>
      *   <li><strong>OFF</strong>: disables all ANSI escape codes, output is
      *   written to stdout/stderr unchanged.</li>
-     *   <li><strong>CONSOLE</strong>:Uses <code>System.console()</code> to
+     *   <li><strong>CONSOLE</strong>:Uses {@link System#console} to
      *   detect if the application is running in an interactive shell, and only
      *   outputs ANSI escape codes (equivalent to REAL) if so; otherwise escape
      *   codes are disabled, like OFF.</li>
@@ -106,8 +106,9 @@ public class Ansi {
     }
 
     /**
-     * An instance of Ansi that always formats strings according to the ANSI
-     * standard, even when other environments were detected.
+     * Constructs a new {@code Ansi} instance that always formats strings
+     * according to the ANSI standard, even when other environments were
+     * detected.
      *
      * @return an Ansi instance wrapping System.out and System.err.
      */
@@ -116,9 +117,9 @@ public class Ansi {
     }
 
     /**
-     * An instance of Ansi that formats strings with the character sequences
-     * used to create escape codes. Useful for copying or piping into Bash's
-     * <code>echo -e</code>.
+     * Constructs a new {@code Ansi} instance that formats strings with the
+     * character sequences used to create escape codes. Useful for copying or
+     * piping into Bash's <code>echo -e</code>.
      *
      * @return an Ansi instance wrapping System.out and System.err.
      */
@@ -127,9 +128,10 @@ public class Ansi {
     }
 
     /**
-     * An instance of Ansi that doesn't output any escape codes.
-     * No need to be public, there's little reason for a caller to manually ask
-     * for a no-op Ansi; they could just print directly to stdout or stderr.
+     * Constructs a new {@code Ansi} instance that doesn't output any escape
+     * codes. No need to be public, there's little reason for a caller to
+     * manually ask for a no-op Ansi; they could just print directly to stdout
+     * or stderr.
      *
      * @return an Ansi instance wrapping System.out and System.err.
      */
@@ -256,8 +258,8 @@ public class Ansi {
      * Styles defined by the ANSI standard.
      *
      * <p>Many terminals support at least a subset of these styles (notably
-     * <code>BOLD</code>), but others are less common. Some, notably
-     * <code>BLINK</code>, are intentionally disabled in many terminals.
+     * {@code BOLD}), but others are less common. Some, notably
+     * {@code BLINK}, are intentionally disabled in many terminals.
      *
      * <p>Consider importing this enum statically:
      * <code>import static com.mwdiamond.fansi.Ansi.Style.*;</code>
@@ -335,7 +337,7 @@ public class Ansi {
      * Sets the color, and optionally the style(s), of the next block of text
      * to display.
      *
-     * <p>Run demo.ColorIndexTable for more color index details.
+     * <p>Run {@code demo.ColorIndexTable} for more color index details.
      *
      * @param colorIndex A color index, 0-255.
      * @param styles Any additional ANSI styles to apply, <em>optional</em>.
@@ -383,7 +385,7 @@ public class Ansi {
      * Sets the color, font, and optionally the style(s), of the next block of
      * text to display.
      *
-     * <p>Run demo.ColorIndexTable for more color index details.
+     * <p>Run {@code demo.ColorIndexTable} for more color index details.
      *
      * @param colorIndex A color index, 0-255.
      * @param font a standard ANSI font.
@@ -433,7 +435,7 @@ public class Ansi {
      * Sets the color and background, and optionally the style(s), of the next
      * block of text to display.
      *
-     * <p>Run demo.ColorIndexTable for more color index details.
+     * <p>Run {@code demo.ColorIndexTable} for more color index details.
      *
      * @param colorIndex A color index, 0-255.
      * @param backgroundIndex A color index, 0-255.
@@ -484,7 +486,7 @@ public class Ansi {
      * Sets the color, background, font, and optionally style(s), of the next
      * block of text to display.
      *
-     * <p>Run demo.ColorIndexTable for more color index details.
+     * <p>Run {@code demo.ColorIndexTable} for more color index details.
      *
      * @param colorIndex A color index, 0-255.
      * @param backgroundIndex A color index, 0-255.
@@ -535,7 +537,7 @@ public class Ansi {
      * Sets the background color, and optionally the style(s), of the next
      * block of text to display.
      *
-     * <p>Run demo.ColorIndexTable for more color index details.
+     * <p>Run {@code demo.ColorIndexTable} for more color index details.
      *
      * @param backgroundIndex A color index, 0-255.
      * @param styles Any additional ANSI styles to apply, <em>optional</em>.
@@ -601,6 +603,8 @@ public class Ansi {
      *
      * @param lines a number of lines to move the cursor from its current position.
      * @return This Ansi instance, to continue modifying the output.
+     * @see #saveCursor
+     * @see #restoreCursor
      */
     public Ansi moveCursor(int lines) {
         if (lines < 0) {
@@ -618,6 +622,8 @@ public class Ansi {
      * @param lines a number of lines to move the cursor from its current position.
      * @param columns a number of columns to move the cursor from its current position.
      * @return This Ansi instance, to continue modifying the output.
+     * @see #saveCursor
+     * @see #restoreCursor
      */
     public Ansi moveCursor(int lines, int columns) {
         prepend(codes.moveCursor(lines, columns));
@@ -625,12 +631,16 @@ public class Ansi {
     }
 
     /**
-     * Saves the current position of the cursor. Use <code>restoreCursor</code>
+     * Saves the current position of the cursor. Use {@link #restoreCursor}
      * to move the cursor back to this position.
      *
      * This is <em>not</em> a chainable method, to avoid erroneously calling
-     * <code>ansi().restoreCursor();</code> without writing. The restore-cursor
-     * code is written to stdout immediately.
+     * <code>ansi().saveCursor();</code> without calling a terminating method
+     * (e.g. {@code .out()}). The save-cursor code is written to stdout
+     * immediately.
+     *
+     * @see #moveCursor
+     * @see #restoreCursor
      */
     public void saveCursor() {
         checkState(preBuffer.isEmpty() && postBuffer.isEmpty(), "Unnecessary chaining; cannot set additional formatting on the window title.");
@@ -640,11 +650,15 @@ public class Ansi {
 
     /**
      * Restores the cursor to its previously saved position; use in tandem with
-     * <code>saveCursor</code>.
+     * {@link #saveCursor}.
      *
      * This is <em>not</em> a chainable method, to avoid erroneously calling
-     * <code>ansi().restoreCursor();</code> without writing. The restore-cursor
-     * code is written to stdout immediately.
+     * <code>ansi().restoreCursor();</code> without calling a terminating
+     * method (e.g. {@code .out()}). The restore-cursor code is written to
+     * stdout immediately.
+     *
+     * @see #moveCursor
+     * @see #saveCursor
      */
     public void restoreCursor() {
         checkState(preBuffer.isEmpty() && postBuffer.isEmpty(), "Unnecessary chaining; cannot set additional formatting on the window title.");
@@ -722,7 +736,7 @@ public class Ansi {
     /**
      * Writes text to stdout after piping it and args through String.format().
      *
-     * <p>Compare to <code>System.out.print()</code>
+     * <p>Compare to {@code System.out.print()}
      *
      * @param text the text to write to stdout, wrapped by any previously-specified ANSI codes.
      * @param args Arguments to use if text contains printf-style tokens, <em>optional</em>.
@@ -736,7 +750,7 @@ public class Ansi {
      * Writes text to stdout after piping it and args through String.format(),
      * also prints a newline.
      *
-     * <p>Compare to <code>System.out.println()</code>
+     * <p>Compare to {@code System.out.println()}
      *
      * @param text the text to write to stdout, wrapped by any previously-specified ANSI codes.
      * @param args Arguments to use if text contains printf-style tokens, <em>optional</em>.
@@ -749,7 +763,7 @@ public class Ansi {
     /**
      * Simply writes a newline to stdout.
      *
-     * <p>Compare to <code>System.out.println()</code>
+     * <p>Compare to {@code System.out.println()}
      *
      * @return a clean Ansi instance, to continue chaining output.
      */
@@ -760,7 +774,7 @@ public class Ansi {
     /**
      * Writes text to stderr after piping it and args through String.format().
      *
-     * <p>Compare to <code>System.err.print()</code>
+     * <p>Compare to {@code System.err.print()}
      *
      * @param text the text to write to stderr, wrapped by any previously-specified ANSI codes.
      * @param args Arguments to use if text contains printf-style tokens, <em>optional</em>.
@@ -774,7 +788,7 @@ public class Ansi {
      * Writes text to stderr after piping it and args through String.format(),
      * also prints a newline.
      *
-     * <p>Compare to <code>System.err.println()</code>
+     * <p>Compare to {@code System.err.println()}
      *
      * @param text the text to write to stderr, wrapped by any previously-specified ANSI codes.
      * @param args Arguments to use if text contains printf-style tokens, <em>optional</em>.
@@ -787,7 +801,7 @@ public class Ansi {
     /**
      * Simply writes a newline to stderr.
      *
-     * <p>Compare to <code>System.err.println()</code>
+     * <p>Compare to {@code System.err.println()}
      *
      * @return a clean Ansi instance, to continue chaining output.
      */
@@ -799,7 +813,7 @@ public class Ansi {
      * Helper method to delay output for a short period of time, so users can
      * see the output changing. Useful when overwriting previous lines.
      *
-     * <p>Note this calls <code>Thread.sleep()</code>.
+     * <p>Note this calls {@link Thread#sleep}.
      *
      * @return This Ansi instance, to continue modifying the output.
      */
@@ -811,7 +825,7 @@ public class Ansi {
      * Helper method to delay output for a short period of time, so users can
      * see the output changing. Useful when overwriting previous lines.
      *
-     * <p>Note this calls <code>Thread.sleep()</code>.
+     * <p>Note this calls {@link Thread#sleep}.
      *
      * @param millis a number of milliseconds to delay output.
      * @return This Ansi instance, to continue modifying the output.

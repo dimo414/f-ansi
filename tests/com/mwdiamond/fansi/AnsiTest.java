@@ -38,7 +38,7 @@ public class AnsiTest {
 
     @BeforeMethod
     private void flushAnsi() {
-        ansiForTests = new AnsiForTests(Codes.RAW);
+        ansiForTests = new AnsiForTests();
     }
 
     private Ansi ansi() {
