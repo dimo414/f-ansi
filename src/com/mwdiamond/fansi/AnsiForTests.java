@@ -16,7 +16,7 @@ import java.io.PrintStream;
  * <p>Note that the exact outputs of {@code Ansi} is not guaranteed to be
  * stable. Avoid writing change-detector style tests that look for exact
  * string matches, as these could easily break in future versions. Consider
- * instead looking for patterns, such as <code>.*Foobar.*\n</code>.
+ * instead looking for patterns, such as {@code .*Foobar.*\n}.
  */
 public class AnsiForTests implements AnsiFactory {
     private final ByteArrayOutputStream stdoutSink = new ByteArrayOutputStream();
