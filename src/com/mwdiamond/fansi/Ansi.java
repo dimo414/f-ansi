@@ -297,11 +297,12 @@ public class Ansi {
      * Sets the color, and optionally the style(s), of the next block of text
      * to display.
      *
+     * <p>Run demo.ColorIndexTable for more color index details.
+     *
      * @param colorIndex A color index, 0-255.
      * @param styles Any additional ANSI styles to apply, <em>optional</em>.
      * @return This Ansi instance, to continue modifying the output.
      */
-    // TODO add link to 8-bit color reference.
     public Ansi color(int colorIndex, Style ... styles) {
         prepend(codes.color(new ColorType(colorIndex), ColorType.DEFAULT, Font.DEFAULT, styles));
         append(codes.clear());
@@ -344,12 +345,13 @@ public class Ansi {
      * Sets the color, font, and optionally the style(s), of the next block of
      * text to display.
      *
+     * <p>Run demo.ColorIndexTable for more color index details.
+     *
      * @param colorIndex A color index, 0-255.
      * @param font a standard ANSI font.
      * @param styles Any additional ANSI styles to apply, <em>optional</em>.
      * @return This Ansi instance, to continue modifying the output.
      */
-    // TODO add link to 8-bit color reference.
     public Ansi color(int colorIndex, Font font, Style ... styles) {
         prepend(codes.color(new ColorType(colorIndex), ColorType.DEFAULT, font, styles));
         append(codes.clearFont(), codes.clear());
@@ -393,12 +395,13 @@ public class Ansi {
      * Sets the color and background, and optionally the style(s), of the next
      * block of text to display.
      *
+     * <p>Run demo.ColorIndexTable for more color index details.
+     *
      * @param colorIndex A color index, 0-255.
      * @param backgroundIndex A color index, 0-255.
      * @param styles Any additional ANSI styles to apply, <em>optional</em>.
      * @return This Ansi instance, to continue modifying the output.
      */
-    // TODO add link to 8-bit color reference.
     public Ansi color(int colorIndex, int backgroundIndex, Style ... styles) {
         prepend(codes.color(new ColorType(colorIndex), new ColorType(backgroundIndex), Font.DEFAULT, styles));
         append(codes.clear());
@@ -443,13 +446,14 @@ public class Ansi {
      * Sets the color, background, font, and optionally style(s), of the next
      * block of text to display.
      *
+     * <p>Run demo.ColorIndexTable for more color index details.
+     *
      * @param colorIndex A color index, 0-255.
      * @param backgroundIndex A color index, 0-255.
      * @param font a standard ANSI font.
      * @param styles Any additional ANSI styles to apply, <em>optional</em>.
      * @return This Ansi instance, to continue modifying the output.
      */
-    // TODO add link to 8-bit color reference.
     public Ansi color(int colorIndex, int backgroundIndex, Font font, Style ... styles) {
         prepend(codes.color(new ColorType(colorIndex), new ColorType(backgroundIndex), font, styles));
         append(codes.clearFont(), codes.clear());
@@ -493,11 +497,12 @@ public class Ansi {
      * Sets the background color, and optionally the style(s), of the next
      * block of text to display.
      *
+     * <p>Run demo.ColorIndexTable for more color index details.
+     *
      * @param backgroundIndex A color index, 0-255.
      * @param styles Any additional ANSI styles to apply, <em>optional</em>.
      * @return This Ansi instance, to continue modifying the output.
      */
-    // TODO add link to 8-bit color reference.
     public Ansi background(int backgroundIndex, Style ... styles) {
         prepend(codes.color(ColorType.DEFAULT, new ColorType(backgroundIndex), Font.DEFAULT, styles));
         append(codes.clear());

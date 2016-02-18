@@ -105,7 +105,6 @@
     </target>
 
     <!-- Javadocs -->
-    <!-- TODO resolve doc warnings -->
     <target name="docs" depends="build" description="Generate API documentation">
         <javadoc
          sourcepath="${core.src}"
