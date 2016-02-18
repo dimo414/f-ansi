@@ -12,6 +12,14 @@ import com.mwdiamond.fansi.Ansi.Color;
 import com.mwdiamond.fansi.Ansi.Font;
 import com.mwdiamond.fansi.Ansi.Style;
 
+/**
+ * Prints a table of the standard colors and backgrounds.
+ *
+ * <p>You can specify a font and/or one or more styles as command-line
+ * arguments to display the table in the specified format. For instance
+ * passing "bold" and "underline" as arguments will print the table
+ * in bolded, underlined style.
+ */
 public class ColorTable {
     private static final String CELL = "%8.8s";
     private static final String LABEL = CELL + " ";
