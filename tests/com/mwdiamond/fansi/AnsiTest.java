@@ -1,15 +1,20 @@
 package com.mwdiamond.fansi;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 import static com.mwdiamond.fansi.Ansi.Color.*;
 import static com.mwdiamond.fansi.Ansi.Font.*;
 import static com.mwdiamond.fansi.Ansi.Style.*;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Basic unit tests of Ansi, including (sadly) a number of change
@@ -66,6 +71,22 @@ public class AnsiTest {
         ansi().errln(helloWorld);
         assertThat(ansiForTests.getStdout()).isEmpty();
         assertThat(ansiForTests.getStderr()).isEqualTo(helloWorld + "\n");
+    }
+
+    private static final Map<java.awt.Color, Integer> COLORS_TO_COLOR_INDEX =
+        new ImmutableMap.Builder<java.awt.Color, Integer>()
+        .put(java.awt.Color.WHITE,  0xE7)
+        .put(java.awt.Color.GRAY,   0xF4)
+        .put(java.awt.Color.BLACK,  0x10)
+        .put(java.awt.Color.RED,    0xC4)
+        .put(java.awt.Color.PINK,   0xD9)
+        .put(java.awt.Color.ORANGE, 0xD6)
+        .build();
+    @Test
+    public void toColorIndex() {
+        for (Entry<java.awt.Color, Integer> e : COLORS_TO_COLOR_INDEX.entrySet()) {
+            assertWithMessage("Passed Color %s", e.getKey()).that(Ansi.toColorIndex(e.getKey())).isEqualTo(e.getValue());
+        }
     }
 
     @Test
