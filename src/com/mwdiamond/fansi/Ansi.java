@@ -45,9 +45,34 @@ import com.mwdiamond.fansi.Codes.ColorType;
  */
 public class Ansi {
     private static final long DEFAULT_DELAY = 100;
-    // Might make this dynamic in the future, based on the startup environment
-    // E.g. check if System.console() returns null
-    private static final Codes DEFAULT_CODES = Codes.REAL;
+    private static final String ANSI_PROPERTY = "com.mwdiamond.fansi.ansi";
+    private static final String DEFAULT_CODES = "REAL";
+
+    private static volatile Codes systemCodes;
+    static {
+        getCodesFromProperty();
+    }
+
+    private static void getCodesFromProperty() {
+        String codesProperty = System.getProperty(ANSI_PROPERTY, DEFAULT_CODES).toUpperCase();
+        switch (codesProperty) {
+        case "REAL":
+            systemCodes = Codes.REAL;
+            break;
+        case "RAW":
+            systemCodes = Codes.RAW;
+            break;
+        case "OFF":
+            systemCodes = Codes.NO_OP;
+            break;
+        case "CONSOLE":
+            systemCodes = System.console() != null ? Codes.REAL : Codes.NO_OP;
+            break;
+        // TODO add stdout/stderr TTY detection somehow
+        default:
+            throw new IllegalStateException("Invalid value " + codesProperty + " for property " + ANSI_PROPERTY);
+        }
+    }
 
     /**
      * An instance of Ansi configured for the current environment. Generally
@@ -56,15 +81,28 @@ public class Ansi {
      * <p>Consider importing this method statically:
      * <code>import static com.mwdiamond.fansi.Ansi.ansi;</code>
      *
+     * <p>You can dynamically change this method's behavior with the Java
+     * property <code>com.mwdiamond.fansi.ansi</code>. The property is read
+     * when this class is first initialized. The following values are
+     * currently supported:
+     *
+     * <ul>
+     *   <li><strong>REAL</strong>: the default, makes this method behave like
+     *   <code>realAnsi()</code>.</li>
+     *   <li><strong>RAW</strong>: makes this method behave like
+     *   <code>rawAnsi()</code>.</li>
+     *   <li><strong>OFF</strong>: disables all ANSI escape codes, output is
+     *   written to stdout/stderr unchanged.</li>
+     *   <li><strong>CONSOLE</strong>:Uses <code>System.console()</code> to
+     *   detect if the application is running in an interactive shell, and only
+     *   outputs ANSI escape codes (equivalent to REAL) if so; otherwise escape
+     *   codes are disabled, like OFF.</li>
+     * </ul>
+     *
      * @return an Ansi instance wrapping System.out and System.err.
      */
     public static Ansi ansi() {
-        // TODO read a Java property to determine the type of Ansi instance to return.
-        // Property real: real
-        // Property raw: raw
-        // Property none: none
-        // Property console: real if console, none if null
-        return new Ansi(DEFAULT_CODES);
+        return new Ansi(systemCodes);
     }
 
     /**
