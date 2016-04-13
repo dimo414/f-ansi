@@ -3,7 +3,7 @@
     <property environment="env"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.8"/>
-    <property name="source" value="1.8"/>
+    <property name="source" value="1.7"/> <!-- for now, don't allow Java 8 features. Removing makes Java 8 a dependency. -->
     <property name="core.src" value="src/"/>
     <property name="core.bin" value="bin/"/>
     <property name="demo.src" value="demo/"/>
