@@ -81,10 +81,10 @@ public class Ansi {
      * <p>Consider importing this method statically:
      * {@code import static com.mwdiamond.fansi.Ansi.ansi;}
      *
-     * <p>You can dynamically change this method's behavior with the Java
-     * property {@code com.mwdiamond.fansi.ansi}. The property is read
-     * when this class is first initialized. The following values are
-     * currently supported:
+     * <p>You can change this method's behavior per execution with the
+     * Java property {@code com.mwdiamond.fansi.ansi}. The property is
+     * read when this class is first initialized. The following values
+     * are currently supported:
      *
      * <ul>
      *   <li><b>REAL</b>: the default, makes this method behave like

@@ -19,6 +19,26 @@ public interface AnsiFactory {
     };
 
     /**
+     * A factory wrapper for {@link Ansi#realAnsi}.
+     */
+    public static AnsiFactory REAL = new AnsiFactory() {
+        @Override
+        public Ansi ansi() {
+            return Ansi.realAnsi();
+        }
+    };
+
+    /**
+     * A factory wrapper for {@link Ansi#rawAnsi}.
+     */
+    public static AnsiFactory RAW = new AnsiFactory() {
+        @Override
+        public Ansi ansi() {
+            return Ansi.rawAnsi();
+        }
+    };
+
+    /**
      * A factory that returns {@code Ansi} instances that output no escape
      * codes, and simply write output unchanged to stdout and stderr.
      */
