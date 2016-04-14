@@ -25,11 +25,23 @@
         <pathelement location="lib/testng-6.9.4.jar"/> <!-- Apache 2.0 -->
         <pathelement location="lib/truth-0.28.jar"/> <!-- Apache 2.0 -->
     </path>
+    <path id="checkstyle.classpath">
+        <!--
+        TODO replace -all Jar with standard Jar and appropriate dependencies
+        http://checkstyle.sourceforge.net/dependencies.html
+         -->
+        <pathelement location="lib/checkstyle-6.17-all.jar"/>
+    </path>
     <path id="runtime.classpath"> <!-- used by dependencies, but not by this project -->
         <pathelement location="lib/runtime/jcommander-1.48.jar"/>
         <pathelement location="lib/runtime/snakeyaml-1.14.jar"/>
         <pathelement location="lib/runtime/junit-4.12.jar"/>
     </path>
+
+    <!--taskdefs -->
+    <taskdef resource="com/puppycrawl/tools/checkstyle/ant/checkstyle-ant-task.properties">
+        <classpath refid="checkstyle.classpath"/>
+    </taskdef>
 
     <!-- Setup -->
     <target name="init" description="Create build dirs">
@@ -85,6 +97,15 @@
             <classpath refid="test.classpath"/>
             <classpath refid="runtime.classpath"/>
         </java>
+    </target>
+
+    <!-- Checkstyle -->
+    <target name="checkstyle" depends="build-test" description="Style linter">
+      <checkstyle config="/google_checks.xml" maxWarnings="0">
+        <fileset dir="${core.src}" includes="**/*.java"/>
+        <fileset dir="${test.src}" includes="**/*.java"/>
+        <fileset dir="${demo.src}" includes="**/*.java"/>
+      </checkstyle>
     </target>
 
     <!-- Jar -->
