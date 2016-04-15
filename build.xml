@@ -101,11 +101,15 @@
 
     <!-- Checkstyle -->
     <target name="checkstyle" depends="build-test" description="Style linter">
-      <checkstyle config="/google_checks.xml" maxWarnings="0">
+      <checkstyle config="/google_checks.xml" maxWarnings="2">
         <fileset dir="${core.src}" includes="**/*.java"/>
-        <fileset dir="${test.src}" includes="**/*.java"/>
-        <fileset dir="${demo.src}" includes="**/*.java"/>
       </checkstyle>
+      <checkstyle config="/google_checks.xml" maxWarnings="0">
+        <fileset dir="${test.src}" includes="**/*.java"/>
+      </checkstyle>
+      <checkstyle config="/google_checks.xml" maxWarnings="8">
+          <fileset dir="${demo.src}" includes="**/*.java"/>
+        </checkstyle>
     </target>
 
     <!-- Jar -->
@@ -145,5 +149,7 @@
         </javadoc>
     </target>
 
-    <target name="dist" depends="clean, test, jars, docs" description="Generate a distribution" />
+    <target name="dist"
+        depends="clean, test, checkstyle, jars, docs"
+        description="Generate a distribution" />
 </project>
