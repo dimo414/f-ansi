@@ -190,8 +190,8 @@ public class AnsiTest {
     ansi().fixed(10, 20).color(Color.RED).outln(HELLO);
     ansi().color(Color.RED).fixed(10, 20).outln(HELLO);
     assertThat(ansiForTests.getStdout()).isEqualTo(
-        "\\e[s\\e[10;20H\\e[31m" + HELLO + "\\e[m\\e[u" + LN + 
-        "\\e[31m\\e[s\\e[10;20H" + HELLO + "\\e[u\\e[m" + LN);
+        "\\e[s\\e[10;20H\\e[31m" + HELLO + "\\e[m\\e[u" + LN
+        + "\\e[31m\\e[s\\e[10;20H" + HELLO + "\\e[u\\e[m" + LN);
   }
 
   @Test
