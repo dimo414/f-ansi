@@ -93,10 +93,10 @@ public class AnsiTest {
   }
 
   @Test
-  @ChangeDetector(timesUpdated = 0)
+  @ChangeDetector(timesUpdated = 1)
   public void setTitle() {
     ansi().title(HELLO);
-    assertThat(ansiForTests.getStdout()).isEqualTo("\\e]0;" + HELLO + "\\a");
+    assertThat(ansiForTests.getStdout()).isEqualTo("\\e]2;" + HELLO + "\\a");
   }
 
   @Test

@@ -139,7 +139,17 @@ interface Codes {
     private static final String BELL_REAL = "\u0007";
     private static final String ESC_RAW = "\\e";
     private static final String BELL_RAW = "\\a";
-    private static final String TITLE_ESCAPE = "]0;";
+
+    /*
+     * http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/xterm-title-bar-manipulations.html
+     * http://www.tldp.org/HOWTO/text/Xterm-Title
+     * http://unix.stackexchange.com/q/265760/19157
+     * TITLE_ESCAPE can be 0, 1, or 2, and impacts whether the "icon name" is set.
+     * In practice modern Window Managers don't use "icon name", so 1 is a no-op and 0 and 2 are
+     * equivalent.
+     */
+    private static final String TITLE_ESCAPE = "]2;";
+
     private static final String BEGIN_NON_PRINTING = "\\[";
     private static final String END_NON_PRINTING = "\\]";
 
@@ -187,7 +197,6 @@ interface Codes {
       return new AnsiCodes(ESC_RAW, BELL_RAW);
     }
 
-    // http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/xterm-title-bar-manipulations.html
     @Override
     public String title(String text) {
       return esc + TITLE_ESCAPE + text + bell;
