@@ -15,7 +15,7 @@
     <!-- Classpaths -->
     <path id="core.classpath">
         <pathelement location="${core.bin}"/>
-        <pathelement location="lib/guava-18.0.jar"/> <!-- Apache 2.0 -->
+        <pathelement location="lib/guava-19.0.jar"/> <!-- Apache 2.0 -->
     </path>
     <path id="demo.classpath">
         <pathelement location="${demo.bin}"/>
@@ -25,12 +25,12 @@
         <pathelement location="lib/testng-6.9.4.jar"/> <!-- Apache 2.0 -->
         <pathelement location="lib/truth-0.28.jar"/> <!-- Apache 2.0 -->
     </path>
-    <path id="checkstyle.classpath">
+    <path id="checkstyle.classpath"> <!-- used during build, but not coupled -->
         <!--
         TODO replace -all Jar with standard Jar and appropriate dependencies
         http://checkstyle.sourceforge.net/dependencies.html
          -->
-        <pathelement location="lib/checkstyle-6.17-all.jar"/>
+        <pathelement location="lib/checkstyle-6.17-all.jar"/> <!-- LGPL 2.1 -->
     </path>
     <path id="runtime.classpath"> <!-- used by dependencies, but not by this project -->
         <pathelement location="lib/runtime/jcommander-1.48.jar"/>
@@ -123,7 +123,7 @@
         <jar destfile="${dist}/f-ansi-no-dependencies.jar">
             <fileset dir="${core.bin}"/>
             <!-- TODO reference core.classpath rather than manually enumerate the libs -->
-            <zipfileset excludes="META-INF/*.SF" src="lib/guava-18.0.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/guava-19.0.jar"/>
         </jar>
         <jar destfile="${dist}/f-ansi-demo.jar">
             <fileset dir="${demo.bin}"/>
