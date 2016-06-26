@@ -236,7 +236,7 @@ class AnsiUtils {
   }
 
   // TODO move to demo.AnsiUtilsDemo once public
-  public static void main(String[] args) {
+  public static void main(String[] args) throws InterruptedException {
     AnsiUtils ansiUtils = new AnsiUtils();
 
     ansiUtils.ok("Job '%s' succeeded", "Demo");
@@ -246,7 +246,7 @@ class AnsiUtils {
     ProgressBar progress = ansiUtils.percentProgressBar();
     for (int i = 0; i <= 100; i++) {
       progress.updateProgress(i);
-      ansiUtils.ansi().delay(25);
+      Thread.sleep(25);
     }
     progress.finished();
     
@@ -256,10 +256,10 @@ class AnsiUtils {
         tasks.updateSteps(i, i + 99);
       } else {
         tasks.updateProgress(i);
-        ansiUtils.ansi().delay(20);
+        Thread.sleep(20);
       }
     }
-    ansiUtils.ansi().delay(100);
+    Thread.sleep(100);
     tasks.clear();
     ansiUtils.ok("All tasks complete.");
   }
