@@ -1,4 +1,4 @@
-# F-ANSI
+# F-ANSI - Java Colored Output
 
 [![Build Status](https://drone.io/bitbucket.org/dimo414/f-ansi/status.png)](https://drone.io/bitbucket.org/dimo414/f-ansi/latest)
 
