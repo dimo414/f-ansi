@@ -55,7 +55,7 @@
     <target name="init" description="Create build dirs">
         <mkdir dir="${core.bin}"/>
         <mkdir dir="${test.bin}"/>
-    <mkdir dir="${demo.bin}"/>
+        <mkdir dir="${demo.bin}"/>
         <copy includeemptydirs="false" todir="${core.bin}">
             <fileset dir="${core.src}">
                 <exclude name="**/*.java"/>
@@ -73,7 +73,7 @@
         <delete dir="${core.bin}"/>
         <delete dir="${test.bin}"/>
         <delete dir="${demo.bin}"/>
-	<delete dir="test-output"/>
+        <delete dir="test-output"/>
         <delete dir="${dist}"/>
     </target>
 
@@ -85,8 +85,8 @@
           includeantruntime="false" compiler="com.google.errorprone.ErrorProneAntCompilerAdapter">
             <compilerclasspath refid="compiler.classpath"/>
             <src path="${core.src}"/>
-          <classpath refid="core.classpath"/>
-          <classpath refid="compiletime.classpath"/>
+            <classpath refid="core.classpath"/>
+            <classpath refid="compiletime.classpath"/>
         </javac>
         <javac
           destdir="${demo.bin}" source="${source}" target="${target}" encoding="UTF-8"
@@ -168,6 +168,7 @@
             <footer>Colored Output in Java</footer>
             <bottom><![CDATA[<i>Copyright &#169; 2016 Michael Diamond.</i>]]></bottom>
             <link href="http://docs.oracle.com/javase/8/docs/api/"/>
+            <link href="https://google.github.io/guava/releases/snapshot/api/docs/"/>
             <classpath refid="core.classpath"/>
             <classpath refid="compiletime.classpath"/>
         </javadoc>
