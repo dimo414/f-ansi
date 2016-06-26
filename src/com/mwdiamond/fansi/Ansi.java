@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkState;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Ints;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import com.mwdiamond.fansi.Codes.ColorType;
 
@@ -12,6 +13,8 @@ import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+
+import javax.annotation.CheckReturnValue;
 
 /**
  * The Ansi class wraps an application's stdout and stderr to provide additional console
@@ -30,9 +33,9 @@ import java.util.List;
  * used across threads. Instead, chain off the {@code ansi()} method directly to compose the
  * behavior you need in a fluent style.
  *
- * <p>Note that the "terminating" output methods (out, outln, err, errln) return an Ansi instance so
- * you can continue chaining, but this is simply a convenience; no state from before the terminating
- * method carries over.
+ * <p><b>Note:</b> The "terminating" output methods ({@link #out out}, {@link #outln outln},
+ * {@link #err err}, {@link #errln errln}) return an Ansi instance so you can continue chaining,
+ * but this is simply a convenience; no state from before the terminating method carries over.
  *
  * <p>For example:
  *
@@ -41,7 +44,12 @@ import java.util.List;
  * </pre>
  *
  * <p>does not render "World" in red text, only a green background.
+ * 
+ * <p>This class respects the JSR 305 {@code @CheckReturnValue} annotation, and you can use
+ * <a href="http://errorprone.info/bugpattern/CheckReturnValue">Error Prone</a> to help catch
+ * incorrect usages that fail to call a terminating method.
  */
+@CheckReturnValue
 public class Ansi {
   private static final long DEFAULT_DELAY = 100;
   private static final String ANSI_PROPERTY = "com.mwdiamond.fansi.ansi";
@@ -722,6 +730,7 @@ public class Ansi {
    * @param args arguments to use if text contains printf-style tokens, <i>optional</i>
    * @return a clean Ansi instance, to continue chaining output
    */
+  @CanIgnoreReturnValue
   public Ansi out(String text, Object... args) {
     return writeToPrintStream(stdout, false, text, args);
   }
@@ -735,6 +744,7 @@ public class Ansi {
    * @param args arguments to use if text contains printf-style tokens, <i>optional</i>
    * @return a clean Ansi instance, to continue chaining output
    */
+  @CanIgnoreReturnValue
   public Ansi outln(String text, Object... args) {
     return writeToPrintStream(stdout, true, text, args);
   }
@@ -746,6 +756,7 @@ public class Ansi {
    *
    * @return a clean Ansi instance, to continue chaining output
    */
+  @CanIgnoreReturnValue
   public Ansi outln() {
     return writeToPrintStream(stdout, true, "");
   }
@@ -759,6 +770,7 @@ public class Ansi {
    * @param args arguments to use if text contains printf-style tokens, <i>optional</i>
    * @return a clean Ansi instance, to continue chaining output
    */
+  @CanIgnoreReturnValue
   public Ansi err(String text, Object... args) {
     return writeToPrintStream(stderr, false, text, args);
   }
@@ -772,6 +784,7 @@ public class Ansi {
    * @param args arguments to use if text contains printf-style tokens, <i>optional</i>
    * @return a clean Ansi instance, to continue chaining output
    */
+  @CanIgnoreReturnValue
   public Ansi errln(String text, Object... args) {
     return writeToPrintStream(stderr, true, text, args);
   }
@@ -783,6 +796,7 @@ public class Ansi {
    *
    * @return a clean Ansi instance, to continue chaining output
    */
+  @CanIgnoreReturnValue
   public Ansi errln() {
     return writeToPrintStream(stderr, true, "");
   }

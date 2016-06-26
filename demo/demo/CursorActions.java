@@ -23,9 +23,14 @@ public class CursorActions {
 
     clearLines();
 
-    ansi().out("A message to overwrite").delay(500).overwriteThisLine().outln("Overwritten")
-        .delay(500);
-    ansi().outln("A message on a previous line to overwrite").out("And this line").delay(500)
+    ansi().out("A message to overwrite")
+        .delay(500)
+        .overwriteThisLine()
+        .outln("Overwritten")
+        .delay(500)
+        .outln("A message on a previous line to overwrite")
+        .out("And this line")
+        .delay(500)
         .overwriteLastLine().outln("Overwritten");
   }
 
