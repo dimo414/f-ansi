@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkState;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Ints;
+import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import com.mwdiamond.fansi.Codes.ColorType;
@@ -805,7 +806,12 @@ public class Ansi {
    * Helper method to delay output for a short period of time, so users can see the output changing.
    * Useful when overwriting previous lines.
    *
-   * <p>Note this calls {@link Thread#sleep}.
+   * <p><b>Note:</b> this calls {@link Thread#sleep Thread.sleep()} and suppresses any
+   * {@link InterruptedException} (and restores the thread's interrupted flag) - the application is
+   * responsible for handling such interruptions. Do not use this method simply to avoid calling
+   * {@code Thread.sleep()} yourself - if you really don't want to handle the
+   * {@code InterruptedException} use
+   * {@link Uninterruptibles#sleepUninterruptibly Uninterruptibles.sleepUninterruptibly()}.
    *
    * @return this Ansi instance, to continue modifying the output
    */
@@ -817,7 +823,12 @@ public class Ansi {
    * Helper method to delay output for a short period of time, so users can see the output changing.
    * Useful when overwriting previous lines.
    *
-   * <p>Note this calls {@link Thread#sleep}.
+   * <p><b>Note:</b> this calls {@link Thread#sleep Thread.sleep()} and suppresses any
+   * {@link InterruptedException} (and restores the thread's interrupted flag) - the application is
+   * responsible for handling such interruptions. Do not use this method simply to avoid calling
+   * {@code Thread.sleep()} yourself - if you really don't want to handle the
+   * {@code InterruptedException} use
+   * {@link Uninterruptibles#sleepUninterruptibly Uninterruptibles.sleepUninterruptibly()}.
    *
    * @param millis a number of milliseconds to delay output
    * @return this Ansi instance, to continue modifying the output
