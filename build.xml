@@ -13,6 +13,9 @@
     <property name="dist" value="dist/"/>
 
     <!-- Classpaths -->
+    <path id="compiler.classpath">
+        <pathelement location="lib/error_prone_ant-2.0.9.jar"/>
+    </path>
     <path id="core.classpath">
         <pathelement location="${core.bin}"/>
         <pathelement location="lib/guava-19.0.jar"/> <!-- Apache 2.0 -->
@@ -71,18 +74,30 @@
 
     <!-- Compile -->
     <target name="build" depends="init" description="Compile core classes">
-        <javac deprecation="true" optimize="true" debug="true" debuglevel="${debuglevel}" destdir="${core.bin}" source="${source}" target="${target}" includeantruntime="false">
+        <javac
+          destdir="${core.bin}" source="${source}" target="${target}" encoding="UTF-8"
+          deprecation="true" optimize="true" debug="true" debuglevel="${debuglevel}"
+          includeantruntime="false" compiler="com.google.errorprone.ErrorProneAntCompilerAdapter">
+            <compilerclasspath refid="compiler.classpath"/>
             <src path="${core.src}"/>
             <classpath refid="core.classpath"/>
         </javac>
-        <javac deprecation="true" optimize="true" debug="true" debuglevel="${debuglevel}" destdir="${demo.bin}" source="${source}" target="${target}" includeantruntime="false">
+        <javac
+          destdir="${demo.bin}" source="${source}" target="${target}" encoding="UTF-8"
+          deprecation="true" optimize="true" debug="true" debuglevel="${debuglevel}"
+          includeantruntime="false" compiler="com.google.errorprone.ErrorProneAntCompilerAdapter">
+            <compilerclasspath refid="compiler.classpath"/>
             <src path="${demo.src}"/>
             <classpath refid="core.classpath"/>
             <classpath refid="demo.classpath"/>
         </javac>
     </target>
     <target name="build-test" depends="build" description="Compile test classes">
-        <javac deprecation="true" optimize="true" debug="true" debuglevel="${debuglevel}" destdir="${test.bin}" source="${source}" target="${target}" includeantruntime="false">
+        <javac
+          destdir="${test.bin}" source="${source}" target="${target}" encoding="UTF-8"
+          deprecation="true" optimize="true" debug="true" debuglevel="${debuglevel}"
+          includeantruntime="false" compiler="com.google.errorprone.ErrorProneAntCompilerAdapter">
+            <compilerclasspath refid="compiler.classpath"/>
             <src path="${test.src}"/>
             <classpath refid="core.classpath"/>
             <classpath refid="test.classpath"/>
