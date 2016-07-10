@@ -685,9 +685,6 @@ public class Ansi {
    * Clears the current and previous lines and positions the cursor at the start of the previous
    * line.
    *
-   * <p>As of February 2016 this <a href="https://gitlab.com/gnachman/iterm2/issues/3617">does not
-   * work on iTerm2 stable</a>, you must install the beta.
-   *
    * @return this Ansi instance, to continue modifying the output
    */
   public Ansi overwriteLastLine() {
