@@ -9,4 +9,5 @@ pipelines:
   default:
     - step:
         script: # Modify the commands below to build your repository.
+          - sudo apt-get install ant -y
           - ant clean test dist
