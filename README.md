@@ -1,7 +1,5 @@
 # F-ANSI - Java Colored Output
 
-[![Build Status](https://drone.io/bitbucket.org/dimo414/f-ansi/status.png)](https://drone.io/bitbucket.org/dimo414/f-ansi/latest)
-
 A fluent Java API to control console output via ANSI control codes
 
 ## Background
