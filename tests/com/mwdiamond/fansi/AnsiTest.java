@@ -33,7 +33,7 @@ public class AnsiTest {
    * good indication that a test should be refactored or removed.
    */
   @Target({ElementType.METHOD})
-  private static @interface ChangeDetector {
+  private @interface ChangeDetector {
     int timesUpdated();
   }
 

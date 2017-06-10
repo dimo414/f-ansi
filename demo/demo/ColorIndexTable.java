@@ -9,8 +9,8 @@ import static com.mwdiamond.fansi.Ansi.ansi;
  * <p>Credit to http://stackoverflow.com/a/27165165/113632 for inspiring the grouped output.
  */
 public class ColorIndexTable {
-  private static int BLACK = 0x10;
-  private static int WHITE = 0xE7;
+  private static final int BLACK = 0x10;
+  private static final int WHITE = 0xE7;
 
   public static void main(String[] args) {
     ansi().outln("All codes as Hex Values:");

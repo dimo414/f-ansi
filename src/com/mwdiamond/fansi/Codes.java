@@ -26,9 +26,9 @@ import java.util.List;
 interface Codes {
 
   // Known implementations
-  public static final Codes REAL = AnsiCodes.real();
-  public static final Codes RAW = AnsiCodes.raw();
-  public static final Codes NO_OP = new NoOpCodes();
+  public final Codes REAL = AnsiCodes.real();
+  public final Codes RAW = AnsiCodes.raw();
+  public final Codes NO_OP = new NoOpCodes();
 
   String title(String text);
 
@@ -118,7 +118,7 @@ interface Codes {
       } else if (javaColor() != null) {
         return Color.extended(javaColor(), false);
       }
-      throw new IllegalArgumentException("Unexected ColorType, " + this);
+      throw new IllegalArgumentException("Unexpected ColorType, " + this);
     }
 
     List<Object> getBackgroundCodeParts() {
@@ -129,11 +129,11 @@ interface Codes {
       } else if (javaColor() != null) {
         return Color.extended(javaColor(), true);
       }
-      throw new IllegalArgumentException("Unexected ColorType, " + this);
+      throw new IllegalArgumentException("Unexpected ColorType, " + this);
     }
   }
 
-  static class AnsiCodes implements Codes {
+  class AnsiCodes implements Codes {
     // Escapes
     private static final String ESC_REAL = "\u001B";
     private static final String BELL_REAL = "\u0007";
@@ -347,7 +347,7 @@ interface Codes {
     }
   }
 
-  static class NoOpCodes implements Codes {
+  class NoOpCodes implements Codes {
 
     @Override
     public String title(String text) {

@@ -10,7 +10,7 @@ public interface AnsiFactory {
   /**
    * A factory wrapper for {@link Ansi#ansi}.
    */
-  public static AnsiFactory DEFAULT = new AnsiFactory() {
+  public AnsiFactory DEFAULT = new AnsiFactory() {
     @Override
     public Ansi ansi() {
       return Ansi.ansi();
@@ -20,7 +20,7 @@ public interface AnsiFactory {
   /**
    * A factory wrapper for {@link Ansi#realAnsi}.
    */
-  public static AnsiFactory REAL = new AnsiFactory() {
+  public AnsiFactory REAL = new AnsiFactory() {
     @Override
     public Ansi ansi() {
       return Ansi.realAnsi();
@@ -30,7 +30,7 @@ public interface AnsiFactory {
   /**
    * A factory wrapper for {@link Ansi#rawAnsi}.
    */
-  public static AnsiFactory RAW = new AnsiFactory() {
+  public AnsiFactory RAW = new AnsiFactory() {
     @Override
     public Ansi ansi() {
       return Ansi.rawAnsi();
@@ -41,7 +41,7 @@ public interface AnsiFactory {
    * A factory that returns {@code Ansi} instances that output no escape codes, and simply write
    * output unchanged to stdout and stderr.
    */
-  public static AnsiFactory NO_OP = new AnsiFactory() {
+  public AnsiFactory NO_OP = new AnsiFactory() {
     @Override
     public Ansi ansi() {
       return Ansi.noOpAnsi();
@@ -53,5 +53,5 @@ public interface AnsiFactory {
    *
    * @return An Ansi instance.
    */
-  public Ansi ansi();
+  Ansi ansi();
 }
