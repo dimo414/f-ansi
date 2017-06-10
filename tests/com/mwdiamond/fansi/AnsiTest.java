@@ -74,7 +74,7 @@ public class AnsiTest {
     assertThat(ansiForTests.getStderr()).isEqualTo(HELLO + LN);
   }
 
-  private static final Map<java.awt.Color, Integer> COLORS_TO_COLOR_INDEX =
+  private static final ImmutableMap<java.awt.Color, Integer> COLORS_TO_COLOR_INDEX =
       new ImmutableMap.Builder<java.awt.Color, Integer>()
           .put(java.awt.Color.WHITE,  0xE7)
           .put(java.awt.Color.GRAY,   0xF4)
