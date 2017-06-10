@@ -9,13 +9,13 @@ import com.mwdiamond.fansi.Ansi.Color;
 import com.mwdiamond.fansi.Ansi.Font;
 import com.mwdiamond.fansi.Ansi.Style;
 
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 /**
  * Basic unit tests of Ansi, including (sadly) a number of change detector-style tests that may be

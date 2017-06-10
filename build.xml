@@ -35,10 +35,10 @@
     </path>
     <path id="checkstyle.classpath"> <!-- used during build, but not coupled -->
         <!--
-        TODO replace checkstyle-6.17-all.jar Jar with standard Jar and appropriate dependencies
+        TODO replace checkstyle-*-all.jar with isolated jar and dependencies
         http://checkstyle.sourceforge.net/dependencies.html
          -->
-        <pathelement location="lib/checkstyle-6.17-all.jar"/> <!-- LGPL 2.1 -->
+        <pathelement location="lib/checkstyle-7.8.1-all.jar"/> <!-- LGPL 2.1 -->
     </path>
     <path id="runtime.classpath"> <!-- used by dependencies, but not by this project -->
         <pathelement location="lib/runtime/jcommander-1.48.jar"/>
@@ -124,15 +124,15 @@
 
     <!-- Checkstyle -->
     <target name="checkstyle" depends="build-test" description="Style linter">
-      <checkstyle config="/google_checks.xml" maxWarnings="2">
+      <checkstyle config="/google_checks.xml" maxWarnings="0">
         <fileset dir="${core.src}" includes="**/*.java"/>
       </checkstyle>
       <checkstyle config="/google_checks.xml" maxWarnings="0">
         <fileset dir="${test.src}" includes="**/*.java"/>
       </checkstyle>
-      <checkstyle config="/google_checks.xml" maxWarnings="8">
-          <fileset dir="${demo.src}" includes="**/*.java"/>
-        </checkstyle>
+      <checkstyle config="/google_checks.xml" maxWarnings="4">
+        <fileset dir="${demo.src}" includes="**/*.java"/>
+      </checkstyle>
     </target>
 
     <!-- Jar -->
