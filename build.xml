@@ -22,7 +22,7 @@
     </path>
     <path id="test.classpath">
         <pathelement location="${test.bin}"/>
-        <pathelement location="lib/testng-6.9.4.jar"/> <!-- Apache 2.0 -->
+        <pathelement location="lib/testng-6.11.jar"/> <!-- Apache 2.0 -->
         <pathelement location="lib/truth-0.33.jar"/> <!-- Apache 2.0 -->
     </path>
   
