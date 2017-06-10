@@ -1,0 +1,7 @@
+image: dimo414/ci
+
+pipelines:
+  default:
+    - step:
+        script: # Modify the commands below to build your repository.
+          - ant clean test dist
