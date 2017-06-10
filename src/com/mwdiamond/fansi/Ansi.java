@@ -150,7 +150,7 @@ public class Ansi {
    * <p>Consider importing this enum statically:
    * {@code import static com.mwdiamond.fansi.Ansi.Color.*;}
    */
-  public static enum Color {
+  public enum Color {
     BLACK(30),    DARK_GREY(90),
     RED(31),      LIGHT_RED(91),
     GREEN(32),    LIGHT_GREEN(92),
@@ -169,7 +169,7 @@ public class Ansi {
 
     private final int code;
 
-    private Color(int code) {
+    Color(int code) {
       this.code = code;
     }
 
@@ -241,13 +241,13 @@ public class Ansi {
    * <p>Consider importing this enum statically:
    * {@code import static com.mwdiamond.fansi.Ansi.Font.*;}
    */
-  public static enum Font {
+  public enum Font {
     F1(11), F2(12), F3(13), F4(14), F5(15), F6(16), F7(17), F8(18), F9(19), FRAKTUR(20),
     DEFAULT(10);
 
     private final int code;
 
-    private Font(int code) {
+    Font(int code) {
       this.code = code;
     }
 
@@ -265,13 +265,13 @@ public class Ansi {
    * <p>Consider importing this enum statically:
    * {@code import static com.mwdiamond.fansi.Ansi.Style.*;}
    */
-  public static enum Style {
+  public enum Style {
     BOLD(1), DIM(2), ITALIC(3), UNDERLINE(4), BLINK(5), BLINK_RAPID(6), REVERSE(7),
     CONCEAL(8), STRIKETHROUGH(9), FRAME(51), ENCIRCLE(52), OVERLINE(53);
 
     private final int code;
 
-    private Style(int code) {
+    Style(int code) {
       this.code = code;
     }
 
