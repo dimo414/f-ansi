@@ -6,3 +6,5 @@ glob:dist/*
 glob:.project
 glob:.classpath
 glob:.settings/*
+glob:.idea/workspace.xml
+glob:.idea/tasks.xml

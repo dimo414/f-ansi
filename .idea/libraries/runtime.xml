@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="runtime">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/runtime/snakeyaml-1.14.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/runtime/junit-4.12.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/runtime/jcommander-1.48.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
