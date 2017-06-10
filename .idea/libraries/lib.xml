@@ -3,18 +3,18 @@
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/lib/checkstyle-7.8.1-all.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/error_prone_annotations-2.0.19.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/guava-19.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/guava-22.0.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/jsr305-3.0.1.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/testng-6.9.4.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/truth-0.28.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/truth-0.33.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
       <root url="jar://$PROJECT_DIR$/lib/error_prone_annotations-2.0.19-sources.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/guava-19.0-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/guava-22.0-sources.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/jsr305-3.0.1-sources.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/testng-6.9.4-sources.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/truth-0.28-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/truth-0.33-sources.jar!/" />
     </SOURCES>
   </library>
 </component>

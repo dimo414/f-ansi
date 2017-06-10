@@ -15,7 +15,7 @@
     <!-- Classpaths -->
     <path id="core.classpath">
         <pathelement location="${core.bin}"/>
-        <pathelement location="lib/guava-19.0.jar"/> <!-- Apache 2.0 -->
+        <pathelement location="lib/guava-22.0.jar"/> <!-- Apache 2.0 -->
     </path>
     <path id="demo.classpath">
         <pathelement location="${demo.bin}"/>
@@ -23,7 +23,7 @@
     <path id="test.classpath">
         <pathelement location="${test.bin}"/>
         <pathelement location="lib/testng-6.9.4.jar"/> <!-- Apache 2.0 -->
-        <pathelement location="lib/truth-0.28.jar"/> <!-- Apache 2.0 -->
+        <pathelement location="lib/truth-0.33.jar"/> <!-- Apache 2.0 -->
     </path>
   
     <path id="compiler.classpath">
@@ -146,7 +146,7 @@
         <jar destfile="${dist}/f-ansi-no-dependencies.jar">
             <fileset dir="${core.bin}"/>
             <!-- TODO reference core.classpath rather than manually enumerate the libs -->
-            <zipfileset excludes="META-INF/*.SF" src="lib/guava-19.0.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/guava-22.0.jar"/>
         </jar>
         <jar destfile="${dist}/f-ansi-demo.jar">
             <fileset dir="${demo.bin}"/>
