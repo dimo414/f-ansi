@@ -1,7 +1,6 @@
 package demo;
 
 import static com.mwdiamond.fansi.Ansi.ansi;
-import static com.mwdiamond.fansi.Ansi.Color.*;
 
 import com.google.common.collect.ImmutableList;
 
@@ -46,7 +45,7 @@ public class ColorTable {
         try {
           styles.add(Style.valueOf(a.toUpperCase()));
         } catch (IllegalArgumentException e) {
-          ansi().color(RED).err("Error:").errln(" Unknown font/style %s", a)
+          ansi().color(Color.RED).err("Error:").errln(" Unknown font/style %s", a)
               .errln("\tValid fonts: %s", Arrays.toString(Font.values()))
               .errln("\tValid styles: %s", Arrays.toString(Style.values()));
           System.exit(1);

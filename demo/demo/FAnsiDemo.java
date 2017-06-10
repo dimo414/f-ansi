@@ -1,6 +1,10 @@
 package demo;
 
-import static com.mwdiamond.fansi.Ansi.*;
+import static com.mwdiamond.fansi.Ansi.ansi;
+
+import com.mwdiamond.fansi.Ansi.Color;
+import com.mwdiamond.fansi.Ansi.Font;
+import com.mwdiamond.fansi.Ansi.Style;
 
 public class FAnsiDemo {
   public static void main(String[] args) throws Exception {
