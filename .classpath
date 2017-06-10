@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="demo"/>
+	<classpathentry kind="src" path="tests"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="lib" path="lib/guava-22.0.jar" sourcepath="lib/guava-22.0-sources.jar"/>
+	<classpathentry kind="lib" path="lib/testng-6.9.4.jar" sourcepath="lib/testng-6.9.4-sources.jar"/>
+	<classpathentry kind="lib" path="lib/truth-0.33.jar" sourcepath="lib/truth-0.33-sources.jar"/>
+	<classpathentry kind="lib" path="lib/runtime/jcommander-1.48.jar"/>
+	<classpathentry kind="lib" path="lib/runtime/junit-4.12.jar"/>
+	<classpathentry kind="lib" path="lib/runtime/snakeyaml-1.14.jar"/>
+	<classpathentry kind="lib" path="lib/jsr305-3.0.1.jar" sourcepath="lib/jsr305-3.0.1-sources.jar"/>
+	<classpathentry kind="lib" path="lib/error_prone_annotations-2.0.19.jar" sourcepath="lib/error_prone_annotations-2.0.19-sources.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
