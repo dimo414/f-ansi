@@ -14,7 +14,7 @@ abstraction to create elegant applications without the hassle.
 
 **In Alpha**: F-ANSI is still in active development, and the API may change.
 
-API Javadocs: http://dimo414.bitbucket.org/f-ansi/
+API Javadocs: https://dimo414.bitbucket.io/f-ansi/
 
 F-ANSI's fluent interface allows you to compose readable chains of output; the
 following example prints "Foo" in red, followed by a hyphen in the terminal's
