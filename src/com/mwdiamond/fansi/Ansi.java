@@ -7,14 +7,11 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
 import com.mwdiamond.fansi.Codes.ColorType;
-
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-
 import javax.annotation.CheckReturnValue;
 
 /**
@@ -52,35 +49,18 @@ import javax.annotation.CheckReturnValue;
  */
 @CheckReturnValue
 public class Ansi {
+  private static final Codes DEFAULT_CODES = Codes.REAL;
+  private static final int DEFAULT_COLUMNS = 80;
   private static final long DEFAULT_DELAY = 100;
-  private static final String ANSI_PROPERTY = "com.mwdiamond.fansi.ansi";
-  private static final String DEFAULT_CODES = "REAL";
 
-  private static volatile Codes systemCodes;
+  private static final SystemInfo systemInfo = SystemInfo.get();
 
-  static {
-    getCodesFromProperty();
-  }
-
-  private static void getCodesFromProperty() {
-    String codesProperty = System.getProperty(ANSI_PROPERTY, DEFAULT_CODES).toUpperCase();
-    switch (codesProperty) {
-      case "REAL":
-        systemCodes = Codes.REAL;
-        break;
-      case "RAW":
-        systemCodes = Codes.RAW;
-        break;
-      case "OFF":
-        systemCodes = Codes.NO_OP;
-        break;
-      case "CONSOLE":
-        systemCodes = System.console() != null ? Codes.REAL : Codes.NO_OP;
-        break;
-      default:
-        throw new IllegalStateException(
-            "Invalid value " + codesProperty + " for property " + ANSI_PROPERTY);
-    }
+  /**
+   * Returns the width of the currently executing terminal, falling back to {@code 80} if the width
+   * is not (yet) available.
+   */
+  static int columns() {
+    return systemInfo.columns(DEFAULT_COLUMNS);
   }
 
   /**
@@ -107,7 +87,7 @@ public class Ansi {
    * @return an Ansi instance wrapping System.out and System.err.
    */
   public static Ansi ansi() {
-    return new Ansi(systemCodes);
+    return new Ansi(systemInfo.codes(DEFAULT_CODES));
   }
 
   /**
@@ -693,16 +673,14 @@ public class Ansi {
   }
 
   private Ansi writeToPrintStream(PrintStream out, boolean newLine, String text, Object... args) {
+    String formatted = args.length > 0 ? String.format(text, args) : text;
+
     StringBuilder buffer = new StringBuilder();
     for (String part : preBuffer) {
       buffer.append(part);
     }
 
-    if (args.length > 0) {
-      buffer.append(String.format(text, args));
-    } else {
-      buffer.append(text);
-    }
+    buffer.append(formatted);
 
     for (String part : postBuffer) {
       buffer.append(part);
