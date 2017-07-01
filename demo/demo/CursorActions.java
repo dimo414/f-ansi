@@ -2,9 +2,14 @@ package demo;
 
 import static com.mwdiamond.fansi.Ansi.ansi;
 
+/**
+ * Further examples of cursor control with {@link com.mwdiamond.fansi.Ansi} beyond those in
+ * {@link FAnsiDemo}.
+ */
 public class CursorActions {
   private static final int LINES = 10;
 
+  /** main method - see class docs. */
   public static void main(String[] args) {
     clearLines();
 
