@@ -9,9 +9,6 @@ import com.mwdiamond.fansi.Ansi.Color;
 import com.mwdiamond.fansi.Ansi.Font;
 import com.mwdiamond.fansi.Ansi.Style;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Target;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import org.testng.annotations.BeforeMethod;
@@ -25,17 +22,6 @@ public class AnsiTest {
   private static final String HELLO = "Hello World";
   private static final String LN = System.lineSeparator();
   private AnsiForTests ansiForTests;
-
-  /**
-   * Annotation indicating a test method is a change-detector, verifying behavior that may not be
-   * part of the public API, and therefore could change. When these methods need to be updated
-   * increment the timesUpdated field as a record of how often this occurs. A high update count is a
-   * good indication that a test should be refactored or removed.
-   */
-  @Target({ElementType.METHOD})
-  private @interface ChangeDetector {
-    int timesUpdated();
-  }
 
   @BeforeMethod
   private void flushAnsi() {
@@ -72,6 +58,14 @@ public class AnsiTest {
     ansi().errln(HELLO);
     assertThat(ansiForTests.getStdout()).isEmpty();
     assertThat(ansiForTests.getStderr()).isEqualTo(HELLO + LN);
+  }
+
+  @Test
+  public void emptyLn() {
+    ansi().outln();
+    ansi().errln();
+    assertThat(ansiForTests.getStdout()).isEqualTo(LN);
+    assertThat(ansiForTests.getStderr()).isEqualTo(LN);
   }
 
   private static final ImmutableMap<java.awt.Color, Integer> COLORS_TO_COLOR_INDEX =
