@@ -6,7 +6,12 @@ import com.mwdiamond.fansi.Ansi.Color;
 import com.mwdiamond.fansi.Ansi.Font;
 import com.mwdiamond.fansi.Ansi.Style;
 
+/**
+ * Demonstrates several basic features of the {@link com.mwdiamond.fansi.Ansi} class, including
+ * colored output, cursor repositioning, and window title setting.
+ */
 public class FAnsiDemo {
+  /** main method - see class docs. */
   public static void main(String[] args) throws Exception {
     ansi().title("Look, I set the title!");
 

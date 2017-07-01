@@ -34,6 +34,7 @@ public class ColorTable {
     COLORS = builder.build();
   }
 
+  /** main method - see class docs. */
   public static void main(String[] args) {
     Font font = Font.DEFAULT;
     ArrayList<Style> styles = new ArrayList<>();

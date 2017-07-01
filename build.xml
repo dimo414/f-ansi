@@ -130,7 +130,7 @@
       <checkstyle configUrl="jar:file:lib/checkstyle-7.8.1-all.jar!/google_checks.xml" maxWarnings="0">
         <fileset dir="${test.src}" includes="**/*.java"/>
       </checkstyle>
-      <checkstyle configUrl="jar:file:lib/checkstyle-7.8.1-all.jar!/google_checks.xml" maxWarnings="4">
+      <checkstyle configUrl="jar:file:lib/checkstyle-7.8.1-all.jar!/google_checks.xml" maxWarnings="0">
         <fileset dir="${demo.src}" includes="**/*.java"/>
       </checkstyle>
     </target>
