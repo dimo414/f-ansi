@@ -7,3 +7,4 @@ glob:.project
 glob:.settings/*
 glob:.idea/workspace.xml
 glob:.idea/tasks.xml
+glob:.idea/uiDesigner.xml
