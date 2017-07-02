@@ -4,8 +4,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Target;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -128,7 +126,8 @@ public class AnsiUtilsTest {
 
   @Test
   public void progressBar_percent_formatting() {
-    AnsiUtils.ProgressBar progressBar = ansiUtils.percentProgressBar("<{", ">}", '*');
+    AnsiUtils.ProgressBar progressBar = ansiUtils.progressBarBuilder()
+        .prefix("<{").suffix(">}").barCharacter('*').usingPercent();
     progressBar.updateSteps(10, 15);
 
     assertThat(ansiForTests.getStdout()).isEqualTo(
@@ -146,7 +145,8 @@ public class AnsiUtilsTest {
 
   @Test
   public void progressBar_counter_formatting() {
-    AnsiUtils.ProgressBar progressBar = ansiUtils.counterProgressBar("<{", ">}", '*', 3, " tasks");
+    AnsiUtils.ProgressBar progressBar = ansiUtils.progressBarBuilder()
+        .prefix("<{").suffix(">}").barCharacter('*').units(" tasks").usingCounter(3);
     progressBar.updateSteps(10, 15);
 
     assertThat(ansiForTests.getStdout()).isEqualTo(

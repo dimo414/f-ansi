@@ -199,6 +199,32 @@ public class AnsiUtils {
     ansi().out("[ ").color(color, Style.BOLD).out(status).out(" ] ").outln(message, args);
   }
 
+  /** Functional interface to describe the progress bar textually, rather than visually. */
+  private interface TextProgress {
+    TextProgress FRACTION_PROGRESS = new TextProgress() {
+      @Override
+      public String progressAsText(int step, int steps) {
+        return step + "/" + steps;
+      }
+    };
+
+    TextProgress PERCENT_PROGRESS = new TextProgress() {
+      @Override
+      public String progressAsText(int step, int steps) {
+        return String.valueOf(steps == 100 ? step : Math.round(100.0 * step / steps)) + "%";
+      }
+    };
+
+    /**
+     * Returns a string showing the current progress in text (as opposed to graphically).
+     *
+     * @param currentStep the number of steps completed (filled on the progress bar)
+     * @param totalSteps the total number of steps to be completed (width of the progress bar)
+     * @return a string representation of the current and total steps, e.g. {@code "15/25"}
+     */
+    String progressAsText(int currentStep, int totalSteps);
+  }
+
   /**
    * A text progress bar that will overwrite itself when updated, presenting the user with dynamic
    * yet concise visualization of the application's current progress.
@@ -207,26 +233,28 @@ public class AnsiUtils {
    * thread responsible for output, otherwise access to this class needs to be
    * {@code synchronized}. 
    */
-  public abstract class ProgressBar {
-
+  public static class ProgressBar {
+    private final AnsiFactory factory;
     private final String prefix;
     private final String suffix;
     private final String bar;
     private final String units;
+    private final TextProgress textProgress;
     
     private int step;
     private int steps;
     private boolean done = false;
 
-    private ProgressBar(String prefix, String suffix, char bar, String units, int steps) {
-      this.prefix = checkNotNull(prefix);
-      this.suffix = checkNotNull(suffix);
-      this.bar = String.valueOf(bar);
-      this.units = checkNotNull(units);
-      checkArgument(steps > 0);
-      this.steps = steps;
+    private ProgressBar(AnsiFactory factory, Builder builder) {
+      this.factory = checkNotNull(factory);
+      prefix = builder.prefix;
+      suffix = builder.suffix;
+      bar = builder.bar;
+      units = builder.units;
+      textProgress = builder.textProgress;
+      steps = builder.steps;
     }
-    
+
     /**
      * Increment the progress bar by one step.
      * 
@@ -278,7 +306,7 @@ public class AnsiUtils {
      */
     public void remove() {
       checkState(!done, "Progress bar can not be removed; remove() or finish() already called.");
-      ansi().overwriteThisLine().out("");
+      factory.ansi().overwriteThisLine().out("");
       done = true;
     }
     
@@ -291,38 +319,147 @@ public class AnsiUtils {
       checkState(!done, "Progress bar can not be finished; remove() or finish() already called.");
       step = steps;
       render();
-      ansi().outln();
+      factory.ansi().outln();
       done = true;
     }
-
-    /**
-     * Returns a string showing the current progress in text (as opposed to graphically).
-     *
-     * @param currentStep the number of steps completed (filled on the progress bar)
-     * @param totalSteps the total number of steps to be completed (width of the progress bar)
-     * @return a string representation of the current and total steps, e.g. {@code "15/25"}
-     */
-    protected abstract String progressAsText(int currentStep, int totalSteps);
     
     private void render() {
       checkState(!done, "Progress bar can no longer be updated; remove() or finish() called.");
-      int columns = ansi().columns();
+      int columns = factory.ansi().columns();
       
-      String suffixAndCount = suffix + " " + progressAsText(step, steps) + units;
+      String suffixAndCount = suffix + " " + textProgress.progressAsText(step, steps) + units;
       int barWidth = columns - (prefix.length() + suffixAndCount.length());
       if (barWidth < 4) { // 25% per char
-        ansi().overwriteThisLine().out(step + units);
+        factory.ansi().overwriteThisLine().out(step + units);
         return;
       }
       // round down so progress bar doesn't look done too early
       int progress = barWidth * step / steps;
-      ansi()
+      factory.ansi()
           .overwriteThisLine()
           .out(prefix)
           .out(Strings.repeat(bar, progress))
           .out(Strings.repeat(" ", barWidth - progress))
           .out(suffixAndCount);
     }
+
+    /**
+     * Builder for custom {@link ProgressBar} instances.
+     */
+    public static class Builder {
+      private final AnsiFactory factory;
+      private String prefix = "[";
+      private String suffix = "]";
+      private String bar = "=";
+      private String units = "";
+
+      private TextProgress textProgress;
+      private int steps;
+
+      private Builder(AnsiFactory factory) {
+        this.factory = checkNotNull(factory);
+      }
+
+      /**
+       * Specify the text to frame the start of the progress bar.
+       *
+       * @param prefix text to appear before the progress bar
+       * @return this builder
+       */
+      public Builder prefix(String prefix) {
+        this.prefix = checkNotNull(prefix);
+        return this;
+      }
+
+      /**
+       * Specify the text to frame the end of the progress bar.
+       *
+       * @param suffix text to appear after the progress bar
+       * @return this builder
+       */
+      public Builder suffix(String suffix) {
+        this.suffix = checkNotNull(suffix);
+        return this;
+      }
+
+      /**
+       * Specify the character used as the progress bar.
+       *
+       * @param barChar character to use in the progress bar
+       * @return this builder
+       */
+      public Builder barCharacter(char barChar) {
+        this.bar = String.valueOf(barChar);
+        return this;
+      }
+
+      /**
+       * Text appended to the counter as the progress bar's units, e.g. "KB" or " tasks".
+       *
+       * @param units the units of progress to display
+       * @return this builder
+       */
+      public Builder units(String units) {
+        this.units = checkNotNull(units);
+        return this;
+      }
+
+      /**
+       * Returns a {@code ProgressBar} that will display a percentage. Users will generally call
+       * {@link ProgressBar#updateProgress} to update the percentage to display, however they can
+       * also use {@link ProgressBar#updateSteps} to let the {@code ProgressBar} convert the current
+       * step into a percentage.
+       *
+       * <p>This method simply constructs the {@code ProgressBar}, nothing is written to the
+       * console.
+       */
+      public ProgressBar usingPercent() {
+        this.textProgress = TextProgress.PERCENT_PROGRESS;
+        steps = 100;
+        return new ProgressBar(factory, this);
+      }
+
+      /**
+       * Returns a {@code ProgressBar} that will display an x/y counter after the bar.
+       * The {@code initialStepCount} can be updated later via
+       * {@link ProgressBar#updateSteps updateSteps()}.
+       *
+       * <p>This method simply constructs the {@code ProgressBar}, nothing is written to the
+       * console.
+       *
+       * @param initialStepCount the number of steps that will need to be taken to fill the bar
+       * @return a progress bar with an x/y counter
+       */
+      public ProgressBar usingCounter(int initialStepCount) {
+        textProgress = TextProgress.FRACTION_PROGRESS;
+        this.steps = initialStepCount;
+        return new ProgressBar(factory, this);
+      }
+    }
+  }
+
+  /**
+   * Returns a builder to configure a custom {@link ProgressBar}. Most users can simply use
+   * {@link #percentProgressBar()} or {@link #counterProgressBar(int)}, but more options are
+   * available via the builder.
+   *
+   * <p>For example, the following code:
+   *
+   * <pre>{@code ProgressBar customProgressBar = ansiUtil.progressBarBuilder()
+   *     .prefix("<")
+   *     .suffix(">")
+   *     .barCharacter('-')
+   *     .units(" tasks")
+   *     .usingCounter(10);}</pre>
+   *
+   * <p>Would result in a progress bar that looks like:
+   *
+   * <pre>{@code <------------------------                          > 5/10 tasks}</pre>
+   *
+   * @return a builder to construct {@link ProgressBar} instances.
+   */
+  public ProgressBar.Builder progressBarBuilder() {
+    return new ProgressBar.Builder(factory);
   }
 
   /**
@@ -340,41 +477,7 @@ public class AnsiUtils {
    * @return a {@link ProgressBar} instance starting at 0 percent complete
    */
   public ProgressBar percentProgressBar() {
-    return percentProgressBar("[", "]", '=');
-  }
-
-  /**
-   * Returns a {@code ProgressBar} that will display a percentage. Users will generally call
-   * {@link ProgressBar#updateProgress} to update the percentage to display, however they can also
-   * use {@link ProgressBar#updateSteps} to let the {@code ProgressBar} convert the current step
-   * into a percentage.
-   *
-   * <p>This method simply constructs the {@code ProgressBar}, nothing is written to the console.
-   *
-   * <p>Example (prefix: {@code <}, suffix: {@code >}, bar: {@code -}):
-   *
-   * <pre>{@code <-----------------------------                            > 50%}</pre>
-   *
-   * @param barPrefix Text to frame the start of the progress bar
-   * @param barSuffix Text to frame the tail of the progress bar
-   * @param barChar Character used as the progress bar
-   *
-   * @return a {@link ProgressBar} instance starting at 0 percent complete and using the given
-   *     formatting
-   */
-  public ProgressBar percentProgressBar(String barPrefix, String barSuffix, char barChar) {
-    return new PercentProgressBar(barPrefix, barSuffix, barChar);
-  }
-  
-  private class PercentProgressBar extends ProgressBar {
-    PercentProgressBar(String prefix, String suffix, char bar) {
-      super(prefix, suffix, bar, "%", 100);
-    }
-
-    @Override
-    protected String progressAsText(int step, int steps) {
-      return String.valueOf(steps == 100 ? step : Math.round(100.0 * step / steps));
-    }
+    return progressBarBuilder().usingPercent();
   }
 
   /**
@@ -392,7 +495,7 @@ public class AnsiUtils {
    * @return a {@link ProgressBar} instance starting at 0 steps complete
    */
   public ProgressBar counterProgressBar(int initialStepCount) {
-    return counterProgressBar(initialStepCount, "");
+    return progressBarBuilder().usingCounter(initialStepCount);
   }
 
   /**
@@ -411,41 +514,6 @@ public class AnsiUtils {
    * @return a {@link ProgressBar} instance starting at 0 steps complete and using the given units
    */
   public ProgressBar counterProgressBar(int initialStepCount, String units) {
-    return counterProgressBar("[", "]", '=', initialStepCount, units);
-  }
-
-  /**
-   * Returns a {@code ProgressBar} that will display an x/y counter with the given configuration.
-   * The {@code initialStepCount} is the number of steps that will need to be taken to fill the
-   * bar. It can be updated later via {@link ProgressBar#updateSteps updateSteps()}.
-   *
-   * <p>This method simply constructs the {@code ProgressBar}, nothing is written to the console.
-   *
-   * <p>Example (prefix: {@code <}, suffix: {@code >}, bar: {@code -}, units: {@code " tasks"}):
-   *
-   * <pre>{@code <------------------------                        > 50/100 tasks}</pre>
-   *
-   * @param barPrefix Text to frame the start of the progress bar
-   * @param barSuffix Text to frame the tail of the progress bar
-   * @param barChar Character used as the progress bar
-   * @param initialStepCount The number of steps to fill the progress bar
-   * @param units text appended to the counter as the progress bar's units, e.g. "%" or " tasks"
-   * @return a {@link ProgressBar} instance starting at 0 steps complete and using the given units
-   *     and formatting
-   */
-  public ProgressBar counterProgressBar(
-      String barPrefix, String barSuffix, char barChar, int initialStepCount, String units) {
-    return new FractionProgressBar(barPrefix, barSuffix, barChar, units, initialStepCount);
-  }
-  
-  private class FractionProgressBar extends ProgressBar {
-    FractionProgressBar(String prefix, String suffix, char bar, String units, int steps) {
-      super(prefix, suffix, bar, units, steps);
-    }
-
-    @Override
-    protected String progressAsText(int step, int steps) {
-      return step + "/" + steps;
-    }
+    return progressBarBuilder().units(units).usingCounter(initialStepCount);
   }
 }
