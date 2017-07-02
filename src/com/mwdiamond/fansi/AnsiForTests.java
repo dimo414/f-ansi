@@ -21,13 +21,15 @@ public class AnsiForTests implements AnsiFactory {
   private final PrintStream stdout = new PrintStream(stdoutSink);
   private final PrintStream stderr = new PrintStream(stderrSink);
   private final Codes codes;
+  private final SystemInfo systemInfo;
 
   public AnsiForTests() {
-    this(Codes.RAW);
+    this(Codes.RAW, new SystemInfoForTests());
   }
 
-  AnsiForTests(Codes codes) {
+  AnsiForTests(Codes codes, SystemInfo systemInfo) {
     this.codes = checkNotNull(codes);
+    this.systemInfo = checkNotNull(systemInfo);
   }
 
   /**
@@ -38,7 +40,7 @@ public class AnsiForTests implements AnsiFactory {
    */
   @Override
   public Ansi ansi() {
-    return new Ansi(stdout, stderr, codes);
+    return new Ansi(stdout, stderr, codes, systemInfo);
   }
 
   /**
@@ -53,6 +55,13 @@ public class AnsiForTests implements AnsiFactory {
   }
 
   /**
+   * Clears any output written thusfar to stdout.
+   */
+  public void clearStdout() {
+    stdoutSink.reset();
+  }
+
+  /**
    * The output that's been written to stderr.
    *
    * @return The contents of this instance's stderr.
@@ -61,5 +70,41 @@ public class AnsiForTests implements AnsiFactory {
     // It's OK that this uses the default charset, since the stderr PrintStream also uses it
     // and nothing else can write to stderrSink directly.
     return stderrSink.toString();
+  }
+
+  /**
+   * Clears any output written thusfar to stderr.
+   */
+  public void clearStderr() {
+    stderrSink.reset();
+  }
+
+  /**
+   * Fake implementation of {@code SystemInfo} that does not access the system.
+   */
+  static class SystemInfoForTests extends SystemInfo {
+    private final Codes codes;
+    private final Integer columns;
+
+    /** No system info available, always falls back to the defaults. */
+    SystemInfoForTests() {
+      this(null, null);
+    }
+
+    /** Uses the given (possibly null) values as the information retrieved from the system. */
+    SystemInfoForTests(Codes codes, Integer columns) {
+      this.codes = codes;
+      this.columns = columns;
+    }
+
+    @Override
+    Codes systemCodes() {
+      return codes;
+    }
+
+    @Override
+    Integer systemColumns() {
+      return columns;
+    }
   }
 }

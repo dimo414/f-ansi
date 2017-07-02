@@ -53,13 +53,11 @@ public class Ansi {
   private static final int DEFAULT_COLUMNS = 80;
   private static final long DEFAULT_DELAY = 100;
 
-  private static final SystemInfo systemInfo = SystemInfo.get();
-
   /**
    * Returns the width of the currently executing terminal, falling back to {@code 80} if the width
    * is not (yet) available.
    */
-  static int columns() {
+  int columns() {
     return systemInfo.columns(DEFAULT_COLUMNS);
   }
 
@@ -87,7 +85,7 @@ public class Ansi {
    * @return an Ansi instance wrapping System.out and System.err.
    */
   public static Ansi ansi() {
-    return new Ansi(systemInfo.codes(DEFAULT_CODES));
+    return new Ansi(SystemInfo.get().codes(DEFAULT_CODES));
   }
 
   /**
@@ -263,18 +261,20 @@ public class Ansi {
   private final PrintStream stdout;
   private final PrintStream stderr;
   private final Codes codes;
+  private final SystemInfo systemInfo;
   private final LinkedList<String> preBuffer;
   private final LinkedList<String> postBuffer;
 
   private Ansi(Codes codes) {
-    this(System.out, System.err, codes);
+    this(System.out, System.err, codes, SystemInfo.get());
   }
 
   // Package-visible for AnsiForTests
-  Ansi(PrintStream stdout, PrintStream stderr, Codes codes) {
+  Ansi(PrintStream stdout, PrintStream stderr, Codes codes, SystemInfo systemInfo) {
     this.stdout = stdout;
     this.stderr = stderr;
     this.codes = codes;
+    this.systemInfo = systemInfo;
     preBuffer = new LinkedList<>();
     postBuffer = new LinkedList<>();
   }

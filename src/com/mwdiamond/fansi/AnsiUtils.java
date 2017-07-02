@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Strings;
-
 import com.mwdiamond.fansi.Ansi.Color;
 import com.mwdiamond.fansi.Ansi.Style;
 
@@ -21,7 +20,7 @@ import com.mwdiamond.fansi.Ansi.Style;
  *   <ul>
  *     <li>Status messages: {@link #ok [ OK ]}, {@link #warn [ WARN ]}, {@link #error [ ERROR ]}
  *     <li>Event / logging messages: {@link #info [ INFO ]}, {@link #warn [ WARN ]},
- *       {@link #error [ ERROR ]}
+ *       {@link #error [ ERROR ]}, {@link #debug [ DEBUG ]}
  *     <li>Task results: {@link #done [ DONE ]}, {@link #pass [ PASS ]}, {@link #skip [ SKIP ]},
  *       {@link #fail [ FAIL ]}
  *   </ul>
@@ -114,6 +113,7 @@ public class AnsiUtils {
    * @param args (optionally) arguments to format into the message
    * @see #warn warn()
    * @see #error error()
+   * @see #debug debug()
    */
   public void info(String message, Object... args) {
     status("INFO ", Color.GREY, message, args);
@@ -128,6 +128,7 @@ public class AnsiUtils {
    * @see #ok ok()
    * @see #info info()
    * @see #error error()
+   * @see #debug debug()
    */
   public void warn(String message, Object... args) {
     status("WARN ", Color.YELLOW, message, args);
@@ -172,9 +173,24 @@ public class AnsiUtils {
    * @param args (optionally) arguments to format into the message
    * @see #info info()
    * @see #warn warn()
+   * @see #debug debug()
    */
   public void error(String message, Object... args) {
     status("ERROR", Color.RED, message, args);
+  }
+
+  /**
+   * Writes a message to stdout along with a stylized {@code [ DEBUG ]} block. Generally used to
+   * provide additional diagnostic information about the state of the application.
+   *
+   * @param message the message to display
+   * @param args (optionally) arguments to format into the message
+   * @see #info info()
+   * @see #warn warn()
+   * @see #warn error()
+   */
+  public void debug(String message, Object... args) {
+    status("DEBUG", Color.PURPLE, message, args);
   }
 
   // TODO should this right-justify the [ status ] after the message
@@ -201,7 +217,7 @@ public class AnsiUtils {
     private int step;
     private int steps;
     private boolean done = false;
-    
+
     private ProgressBar(String prefix, String suffix, char bar, String units, int steps) {
       this.prefix = checkNotNull(prefix);
       this.suffix = checkNotNull(suffix);
@@ -214,7 +230,7 @@ public class AnsiUtils {
     /**
      * Increment the progress bar by one step.
      * 
-     * @throws IllegalStateException if the current step is already the final step (i.e. 100%)
+     * @throws IllegalStateException if the progress bar is already finished (i.e. 100% or n/n)
      */
     public void increment() {
       updateProgress(step + 1);
@@ -224,11 +240,12 @@ public class AnsiUtils {
      * Set the progress bar's current progress.
      *
      * @param currentStep the number of steps completed (filled on the progress bar)
-     * @throws IllegalArgumentException if the current step is not in the range [0, totalSteps]
+     * @throws IllegalArgumentException if currentStep is negative
+     * @throws IllegalStateException if currentStep is not in the range [0, totalSteps]
      */
     public void updateProgress(int currentStep) {
       checkArgument(currentStep >= 0, "Invalid currentStep: %s", currentStep);
-      checkArgument(
+      checkState(
           currentStep <= this.steps,
           "currentStep (%s) cannot exceed totalSteps (%s)", currentStep, this.steps);
       this.step = currentStep;
@@ -241,9 +258,8 @@ public class AnsiUtils {
      * 
      * @param currentStep the number of steps completed (filled on the progress bar)
      * @param totalSteps the total number of steps to be completed (width of the progress bar)
-     * 
-     * @throws IllegalArgumentException if the current step is not in the range [0, totalSteps] or
-     *     totalSteps is not positive.
+     * @throws IllegalArgumentException if currentStep is negative, totalSteps is not positive, or
+     *     currentStep is not in the range [0, totalSteps]
      */
     public void updateSteps(int currentStep, int totalSteps) {
       checkArgument(totalSteps > 0, "Invalid totalSteps: %s", totalSteps);
@@ -261,6 +277,7 @@ public class AnsiUtils {
      * line. This is a terminating operation; the progress bar can no longer be updated.
      */
     public void remove() {
+      checkState(!done, "Progress bar can not be removed; remove() or finish() already called.");
       ansi().overwriteThisLine().out("");
       done = true;
     }
@@ -271,6 +288,7 @@ public class AnsiUtils {
      * the progress bar can no longer be updated.
      */
     public void finish() {
+      checkState(!done, "Progress bar can not be finished; remove() or finish() already called.");
       step = steps;
       render();
       ansi().outln();
@@ -288,7 +306,7 @@ public class AnsiUtils {
     
     private void render() {
       checkState(!done, "Progress bar can no longer be updated; remove() or finish() called.");
-      int columns = Ansi.columns();
+      int columns = ansi().columns();
       
       String suffixAndCount = suffix + " " + progressAsText(step, steps) + units;
       int barWidth = columns - (prefix.length() + suffixAndCount.length());
@@ -313,6 +331,8 @@ public class AnsiUtils {
    * use {@link ProgressBar#updateSteps} to let the {@code ProgressBar} convert the current step
    * into a percentage.
    *
+   * <p>This method simply constructs the {@code ProgressBar}, nothing is written to the console.
+   *
    * <p>Example:
    *
    * <pre>{@code [=============================                            ] 50%}</pre>
@@ -328,6 +348,8 @@ public class AnsiUtils {
    * {@link ProgressBar#updateProgress} to update the percentage to display, however they can also
    * use {@link ProgressBar#updateSteps} to let the {@code ProgressBar} convert the current step
    * into a percentage.
+   *
+   * <p>This method simply constructs the {@code ProgressBar}, nothing is written to the console.
    *
    * <p>Example (prefix: {@code <}, suffix: {@code >}, bar: {@code -}):
    *
@@ -351,7 +373,7 @@ public class AnsiUtils {
 
     @Override
     protected String progressAsText(int step, int steps) {
-      return String.valueOf(steps == 100 ? step : Math.round(100.0f * step / steps));
+      return String.valueOf(steps == 100 ? step : Math.round(100.0 * step / steps));
     }
   }
 
@@ -359,6 +381,8 @@ public class AnsiUtils {
    * Returns a {@code ProgressBar} that will display an x/y counter. The {@code initialStepCount}
    * is the number of steps that will need to be taken to fill the bar. It can be updated later via
    * {@link ProgressBar#updateSteps updateSteps()}.
+   *
+   * <p>This method simply constructs the {@code ProgressBar}, nothing is written to the console.
    *
    * <p>Example:
    *
@@ -376,6 +400,8 @@ public class AnsiUtils {
    * is the number of steps that will need to be taken to fill the bar. It can be updated later via
    * {@link ProgressBar#updateSteps updateSteps()}.
    *
+   * <p>This method simply constructs the {@code ProgressBar}, nothing is written to the console.
+   *
    * <p>Example (units: {@code " tasks"}):
    *
    * <pre>{@code [========================                        ] 50/100 tasks}</pre>
@@ -392,6 +418,8 @@ public class AnsiUtils {
    * Returns a {@code ProgressBar} that will display an x/y counter with the given configuration.
    * The {@code initialStepCount} is the number of steps that will need to be taken to fill the
    * bar. It can be updated later via {@link ProgressBar#updateSteps updateSteps()}.
+   *
+   * <p>This method simply constructs the {@code ProgressBar}, nothing is written to the console.
    *
    * <p>Example (prefix: {@code <}, suffix: {@code >}, bar: {@code -}, units: {@code " tasks"}):
    *

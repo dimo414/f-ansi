@@ -18,9 +18,10 @@ public class UtilsDemo {
     ansiUtils.warn("Service '%s' is rejecting new request.", "Overloaded");
     ansiUtils.error("Service '%s' is not responding.", "Broken");
     ansi().outln();
+    ansiUtils.debug("Preparing to start task");
     ansiUtils.info("Starting task");
     ansiUtils.warn("Task is taking too long");
-    ansiUtils.fail("Task was killed");
+    ansiUtils.error("Task was killed");
     ansi().outln();
     ansiUtils.done("Task %d of %d complete", 1, 3);
     ansiUtils.pass("Test %d of %d Passed", 1, 1);
