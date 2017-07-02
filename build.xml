@@ -2,8 +2,9 @@
 <project name="F-ANSI" basedir="." default="test">
     <property environment="env"/>
     <property name="debuglevel" value="source,lines,vars"/>
-    <property name="target" value="1.8"/>
-    <property name="source" value="1.7"/> <!-- for now, don't allow Java 8 features. Removing makes Java 8 a dependency. -->
+    <property name="core.target" value="1.7"/> <!-- for now, don't allow Java 8 features -->
+    <property name="demo.target" value="1.8"/>
+    <property name="test.target" value="1.8"/>
     <property name="core.src" value="src/"/>
     <property name="core.bin" value="bin/"/>
     <property name="demo.src" value="demo/"/>
@@ -80,7 +81,7 @@
     <!-- Compile -->
     <target name="build" depends="init" description="Compile core classes">
         <javac
-          destdir="${core.bin}" source="${source}" target="${target}" encoding="UTF-8"
+          destdir="${core.bin}" source="${core.target}" target="${core.target}" encoding="UTF-8"
           deprecation="true" optimize="true" debug="true" debuglevel="${debuglevel}"
           includeantruntime="false" compiler="com.google.errorprone.ErrorProneAntCompilerAdapter">
             <compilerclasspath refid="compiler.classpath"/>
@@ -88,10 +89,12 @@
             <classpath refid="core.classpath"/>
             <classpath refid="compiletime.classpath"/>
         </javac>
+    </target>
+    <target name="build-demo" depends="build" description="Compile demo classes">
         <javac
-          destdir="${demo.bin}" source="${source}" target="${target}" encoding="UTF-8"
-          deprecation="true" optimize="true" debug="true" debuglevel="${debuglevel}"
-          includeantruntime="false" compiler="com.google.errorprone.ErrorProneAntCompilerAdapter">
+            destdir="${demo.bin}" source="${demo.target}" target="${demo.target}" encoding="UTF-8"
+            deprecation="true" optimize="true" debug="true" debuglevel="${debuglevel}"
+            includeantruntime="false" compiler="com.google.errorprone.ErrorProneAntCompilerAdapter">
             <compilerclasspath refid="compiler.classpath"/>
             <src path="${demo.src}"/>
             <classpath refid="core.classpath"/>
@@ -101,7 +104,7 @@
     </target>
     <target name="build-test" depends="build" description="Compile test classes">
         <javac
-          destdir="${test.bin}" source="${source}" target="${target}" encoding="UTF-8"
+          destdir="${test.bin}" source="${demo.target}" target="${demo.target}" encoding="UTF-8"
           deprecation="true" optimize="true" debug="true" debuglevel="${debuglevel}"
           includeantruntime="false" compiler="com.google.errorprone.ErrorProneAntCompilerAdapter">
             <compilerclasspath refid="compiler.classpath"/>
@@ -123,20 +126,20 @@
     </target>
 
     <!-- Checkstyle -->
-    <target name="checkstyle" depends="build-test" description="Style linter">
+    <target name="checkstyle" depends="build-test, build-demo" description="Style linter">
       <checkstyle configUrl="jar:file:lib/checkstyle-7.8.1-all.jar!/google_checks.xml" maxWarnings="0">
         <fileset dir="${core.src}" includes="**/*.java"/>
       </checkstyle>
+        <checkstyle configUrl="jar:file:lib/checkstyle-7.8.1-all.jar!/google_checks.xml" maxWarnings="0">
+            <fileset dir="${demo.src}" includes="**/*.java"/>
+        </checkstyle>
       <checkstyle configUrl="jar:file:lib/checkstyle-7.8.1-all.jar!/google_checks.xml" maxWarnings="0">
         <fileset dir="${test.src}" includes="**/*.java"/>
-      </checkstyle>
-      <checkstyle configUrl="jar:file:lib/checkstyle-7.8.1-all.jar!/google_checks.xml" maxWarnings="0">
-        <fileset dir="${demo.src}" includes="**/*.java"/>
       </checkstyle>
     </target>
 
     <!-- Jar -->
-    <target name="jars" depends="build" description="Build distribution Jars">
+    <target name="jars" depends="build, build-demo" description="Build distribution Jars">
         <jar destfile="${dist}/f-ansi.jar">
             <fileset dir="${core.bin}"/>
         </jar>
