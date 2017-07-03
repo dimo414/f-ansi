@@ -412,6 +412,8 @@ public class AnsiUtils {
        *
        * <p>This method simply constructs the {@code ProgressBar}, nothing is written to the
        * console.
+       *
+       * @return a progress bar with an x% format
        */
       public ProgressBar usingPercent() {
         this.textProgress = TextProgress.PERCENT_PROGRESS;
@@ -428,7 +430,7 @@ public class AnsiUtils {
        * console.
        *
        * @param initialStepCount the number of steps that will need to be taken to fill the bar
-       * @return a progress bar with an x/y counter
+       * @return a progress bar with an x/y format
        */
       public ProgressBar usingCounter(int initialStepCount) {
         textProgress = TextProgress.FRACTION_PROGRESS;
