@@ -136,6 +136,12 @@ abstract class SystemInfo {
       @Override
       public void run() {
         try {
+          // It's not sufficient to just let this fail on Windows; if WSL is installed the "bash"
+          // command will actually succeed and report the width of *that* terminal, not this one.
+          if (System.getProperty("os.name").startsWith("Windows")) {
+            return;
+          }
+
           ProcessBuilder pb = new ProcessBuilder().command("bash", "-c", "tput cols 2> /dev/tty")
               .redirectOutput(ProcessBuilder.Redirect.PIPE)
               .redirectError(ProcessBuilder.Redirect.PIPE);
