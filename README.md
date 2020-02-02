@@ -1,9 +1,9 @@
 # F-ANSI - Java Colored Output
 
-[![0.3 Release](https://img.shields.io/badge/release-0.3-green.svg)](https://bitbucket.org/dimo414/f-ansi/downloads/)
+[![0.3 Release](https://img.shields.io/badge/release-0.3-green.svg)](https://github.com/dimo414/f-ansi/releases/0.3)
 [![0.3 API docs](https://img.shields.io/badge/API-0.3-red.svg)](https://dimo414.bitbucket.io/f-ansi/)
-[![BitBucket issues](https://img.shields.io/bitbucket/issues/dimo414/f-ansi.svg)](https://bitbucket.org/dimo414/f-ansi/issues)
-[![GPL License](https://img.shields.io/badge/license-GPL-blue.svg)](https://bitbucket.org/dimo414/f-ansi/src/tip/LICENSE)
+[![Open Issues](https://img.shields.io/github/issues/dimo414/f-ansi.svg)](https://github.com/dimo414/f-ansi/issues)
+[![GPL License](https://img.shields.io/badge/license-GPL-blue.svg)](https://github.com/dimo414/f-ansi/blob/master/LICENSE)
 
 *A fluent Java API to control console output via ANSI control codes*
 
