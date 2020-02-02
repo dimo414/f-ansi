@@ -194,7 +194,7 @@ public class AnsiUtils {
   }
 
   // TODO should this right-justify the [ status ] after the message
-  // https://bitbucket.org/dimo414/f-ansi/issues/7
+  // https://github.com/dimo414/f-ansi/issues/7
   private void status(String status, Color color, String message, Object... args) {
     ansi().out("[ ").color(color, Style.BOLD).out(status).out(" ] ").outln(message, args);
   }
