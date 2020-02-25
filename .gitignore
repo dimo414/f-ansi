@@ -1,0 +1,8 @@
+bin/
+demo-bin/
+tests-bin/
+test-output/
+dist/
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/uiDesigner.xml
