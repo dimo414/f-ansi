@@ -1,7 +1,7 @@
 # F-ANSI - Java Colored Output
 
 [![0.3 Release](https://img.shields.io/badge/release-0.3-green.svg)](https://github.com/dimo414/f-ansi/releases/0.3)
-[![0.3 API docs](https://img.shields.io/badge/API-0.3-red.svg)](https://dimo414.github.io/f-ansi/3.0/)
+[![0.3 API docs](https://img.shields.io/badge/API-0.3-red.svg)](https://dimo414.github.io/f-ansi/0.3/)
 [![Open Issues](https://img.shields.io/github/issues/dimo414/f-ansi.svg)](https://github.com/dimo414/f-ansi/issues)
 [![GPL License](https://img.shields.io/badge/license-GPL-blue.svg)](https://github.com/dimo414/f-ansi/blob/master/LICENSE)
 
